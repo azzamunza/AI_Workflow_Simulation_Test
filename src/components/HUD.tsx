@@ -20,7 +20,7 @@ export const HUD: React.FC = () => {
         <strong id="hud-agents-label">Live Agents:</strong>
         {Object.values(agents).map((agent) => (
           <div key={agent.id} id={`agent-row-${agent.id}`} style={{ marginLeft: '10px', fontSize: '14px' }}>
-            {agent.name} ({agent.role}) - {agent.status} at [{agent.location.x}, {agent.location.y}]
+             <span id={`agent-name-${agent.id}`}>{agent.name}</span> (<span id={`agent-role-${agent.id}`}>{agent.role}</span>) - <span id={`agent-status-${agent.id}`}>{agent.status}</span> at [<span id={`agent-loc-${agent.id}`}>{agent.location.x}, {agent.location.y}</span>]
           </div>
         ))}
       </div>

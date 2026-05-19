@@ -11,28 +11,28 @@ export class MainScene extends Phaser.Scene {
   }
 
   preload() {
-    // Phase 1: No assets yet, using simple shapes
+    this.load.image('tiles', 'assets/atlas_global.png');
+    this.load.tilemapTiledJSON('map', 'assets/map_office.json');
+    this.load.spritesheet('atlas', 'assets/atlas_global.png', { frameWidth: 32, frameHeight: 32 });
   }
 
   create() {
-    const { width, height } = this.scale;
+    // Tilemap
+    const map = this.make.tilemap({ key: 'map' });
+    const tileset = map.addTilesetImage('office-tiles', 'tiles');
     
-    // Grid background
-    const graphics = this.add.graphics();
-    graphics.lineStyle(1, 0x333333, 0.5);
-    for (let x = 0; x < width; x += 32) {
-      graphics.moveTo(x, 0);
-      graphics.lineTo(x, height);
+    if (tileset) {
+      map.createLayer('Floor', tileset, 0, 0);
+      map.createLayer('Furniture', tileset, 0, 0);
     }
-    for (let y = 0; y < height; y += 32) {
-      graphics.moveTo(0, y);
-      graphics.lineTo(width, y);
-    }
-    graphics.strokePath();
 
-    // Test Agent
-    this.testAgent = this.add.rectangle(100, 100, 24, 24, 0x00ff00);
-    this.add.text(100, 70, 'Agent 01', { fontSize: '12px', color: '#fff' }).setOrigin(0.5);
+    // Test Agent using Atlas frame 10 (Agent color)
+    this.testAgent = this.add.rectangle(400, 720, 24, 24, 0xffffff); // Placeholder till I switch to Sprite
+    // Switch to Sprite to use Atlas
+    const agentSprite = this.add.sprite(400, 720, 'atlas', 10);
+    this.testAgent = agentSprite as any; 
+
+    this.add.text(400, 690, 'Agent 01', { fontSize: '12px', color: '#fff' }).setOrigin(0.5);
 
     // Initial Store Sync
     useSimulationStore.getState().updateAgent('agent_01', {
@@ -40,7 +40,7 @@ export class MainScene extends Phaser.Scene {
       name: 'Agent 01',
       role: 'Worker',
       status: 'Idle',
-      location: { x: 100, y: 100 }
+      location: { x: 400, y: 720 }
     });
   }
 

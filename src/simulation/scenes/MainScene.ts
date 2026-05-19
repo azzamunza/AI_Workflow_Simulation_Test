@@ -43,8 +43,20 @@ export class MainScene extends Phaser.Scene {
     const furnitureLayer = map.createLayer('Furniture', tileset, 0, 0)!;
     
     const floorLayer = map.getLayer('Floor')!;
-    const floorData = floorLayer.data.flat().map((tile: any) => tile.index || 0);
-    const furnitureData = furnitureLayer.data.flat().map((tile: any) => tile.index || 0);
+    const floorData: number[] = [];
+    floorLayer.data.forEach(row => {
+      row.forEach(tile => {
+        floorData.push(tile ? tile.index : 0);
+      });
+    });
+
+    const furnitureData: number[] = [];
+    furnitureLayer.layer.data.forEach(row => {
+      row.forEach(tile => {
+        furnitureData.push(tile ? tile.index : 0);
+      });
+    });
+
     this.navManager = new NavigationManager(floorData, map.width, map.height, furnitureData);
 
     this.taskGraphics = this.add.graphics().setDepth(20);

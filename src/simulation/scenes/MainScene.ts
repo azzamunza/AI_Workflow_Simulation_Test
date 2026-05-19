@@ -76,6 +76,7 @@ export class MainScene extends Phaser.Scene {
   update(time: number, _delta: number) {
     this.syncAgentsWithStore();
     this.renderTasks();
+    this.renderDebugPaths();
 
     ProjectManager.getInstance().step();
 
@@ -140,6 +141,21 @@ export class MainScene extends Phaser.Scene {
         }
       }
     }
+  }
+
+  private renderDebugPaths() {
+    this.debugGraphics.clear();
+    this.debugGraphics.lineStyle(2, 0xff0000, 0.5);
+    this.agentPaths.forEach((pathObj) => {
+      if (pathObj.path.length > 1) {
+        this.debugGraphics.beginPath();
+        this.debugGraphics.moveTo(pathObj.path[0].x, pathObj.path[0].y);
+        for (let i = 1; i < pathObj.path.length; i++) {
+          this.debugGraphics.lineTo(pathObj.path[i].x, pathObj.path[i].y);
+        }
+        this.debugGraphics.strokePath();
+      }
+    });
   }
 
   private renderTasks() {

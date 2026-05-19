@@ -46,10 +46,10 @@ export class NavigationManager {
   }
 
   public findPath(start: { x: number, y: number }, end: { x: number, y: number }): NavNode[] {
-    const startX = Math.round(start.x / 32);
-    const startY = Math.round(start.y / 32);
-    const endX = Math.round(end.x / 32);
-    const endY = Math.round(end.y / 32);
+    const startX = Math.floor(start.x / 32);
+    const startY = Math.floor(start.y / 32);
+    const endX = Math.floor(end.x / 32);
+    const endY = Math.floor(end.y / 32);
 
     const startId = `${startX},${startY}`;
     const endId = `${endX},${endY}`;

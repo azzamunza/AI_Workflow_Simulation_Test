@@ -1,4 +1,4 @@
-import { useSimulationStore, Task } from '../store';
+import { useSimulationStore, Task, Blade } from '../store';
 
 /**
  * AI Orchestration Layer
@@ -74,14 +74,90 @@ export class ProjectManager {
        console.log("[Simulation] Client arrived at Reception.");
        store.updateAgent('client', { status: 'Placing Box' });
        setTimeout(() => {
-          // Drop box for receptionist
           store.updateAgent('client', { status: 'Leaving', carryingTaskId: undefined, targetLocation: { x: 0, y: 23 * 32 + 16 } });
           store.updateAgent('receptionist', { status: 'Picking up Box', carryingTaskId: 'initial-client-box' });
-          
-          // Next step: Move to meeting
           setTimeout(() => this.moveReceptionistToMeeting(), 2000);
        }, 2000);
     }
+
+    // 2. Manager returns to Department and drops box
+    const managers = Object.values(agents).filter(a => a.role === 'Manager');
+    managers.forEach(m => {
+       if (m.status === 'Returning to Dept' && !m.targetLocation && m.carryingTaskId) {
+          console.log(`[Simulation] ${m.name} arrived at Dept Inbox.`);
+          const taskId = m.carryingTaskId;
+          store.updateAgent(m.id, { status: 'Idle', carryingTaskId: undefined });
+          store.updateTask('p-initial', taskId, 'In-Dept');
+       }
+    });
+
+    // 3. Sub-agents pick up blades from boxes in their department
+    const subAgents = Object.values(agents).filter(a => a.role === 'Sub-Agent');
+    subAgents.forEach(sa => {
+       if (sa.status === 'Waiting') {
+          const project = store.projects[0];
+          const taskInDept = project?.tasks.find(t => t.dept === sa.dept && t.status === 'In-Dept');
+          
+          if (taskInDept && taskInDept.blades.length > 0) {
+             const pendingBlade = taskInDept.blades.find(b => b.status === 'Pending');
+             if (pendingBlade) {
+                console.log(`[Simulation] ${sa.name} taking blade ${pendingBlade.id}`);
+                // Move to inbox to pick up
+                const inbox = this.getDeptInboxLocation(sa.dept!);
+                store.updateAgent(sa.id, { 
+                   status: 'Picking up Blade', 
+                   targetLocation: inbox,
+                   carryingBladeId: pendingBlade.id
+                });
+                
+                // Transition status so other sub-agents don't grab it
+                this.updateBladeStatus(project.id, taskInDept.id, pendingBlade.id, 'At-Desk');
+
+                // After picking up, go to desk
+                setTimeout(() => {
+                   const desk = this.getSubAgentDeskLocation(sa.id);
+                   store.updateAgent(sa.id, { 
+                      status: 'Working at Desk', 
+                      targetLocation: desk
+                   });
+                }, 3000);
+             }
+          }
+       }
+    });
+  }
+
+  private updateBladeStatus(projId: string, taskId: string, bladeId: string, status: Blade['status']) {
+     const store = useSimulationStore.getState();
+     const project = store.projects.find(p => p.id === projId);
+     if (project) {
+        const tasks = project.tasks.map(t => {
+           if (t.id === taskId) {
+              return { ...t, blades: t.blades.map(b => b.id === bladeId ? { ...b, status } : b) };
+           }
+           return t;
+        });
+        store.updateProject({ ...project, tasks });
+     }
+  }
+
+  private getSubAgentDeskLocation(id: string): { x: number, y: number } {
+     // worker id: sub-dept-i
+     const parts = id.split('-');
+     const dept = parts[1];
+     const num = parseInt(parts[2]);
+     const centroids: Record<string, { x: number, y: number }> = {
+       "Research": { x: 5 * 32, y: 5 * 32 },
+       "PM": { x: 55 * 32, y: 5 * 32 },
+       "Art": { x: 5 * 32, y: 35 * 32 },
+       "Programming": { x: 55 * 32, y: 35 * 32 },
+       "AI Ops": { x: 25 * 32, y: 5 * 32 },
+       "QA": { x: 25 * 32, y: 35 * 32 },
+       "Planning": { x: 45 * 32, y: 35 * 32 }
+     };
+     const c = centroids[dept];
+     if (num === 1) return { x: c.x + 32 + 16, y: c.y + 3 * 32 + 16 };
+     return { x: c.x + 32 + 16, y: c.y + 6 * 32 + 16 };
   }
 
   private moveReceptionistToMeeting() {
@@ -129,7 +205,7 @@ export class ProjectManager {
           ]
        }));
 
-       store.addProject({
+       store.updateProject({
           ...project,
           tasks: [...project.tasks, ...newTasks]
        });

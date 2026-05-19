@@ -150,6 +150,7 @@ export class MainScene extends Phaser.Scene {
     
     projects.forEach(project => {
       project.tasks.forEach((task: Task) => {
+        // 1. Check if an agent is carrying the entire task box
         const carrier = Object.values(storeAgents).find(a => a.carryingTaskId === task.id);
         if (carrier) {
           const agentObj = this.agents.get(carrier.id);
@@ -160,13 +161,44 @@ export class MainScene extends Phaser.Scene {
           }
         }
 
+        // 2. Check for Blades (pieces of the box)
+        task.blades.forEach(blade => {
+           const bladeCarrier = Object.values(storeAgents).find(a => a.carryingBladeId === blade.id);
+           if (bladeCarrier) {
+              const agentObj = this.agents.get(bladeCarrier.id);
+              if (agentObj) {
+                 // Render blade (horizontal slice)
+                 this.taskGraphics.fillStyle(0x00ccff, 1);
+                 this.taskGraphics.fillRect(agentObj.sprite.x - 10, agentObj.sprite.y - 5, 20, 5);
+                 return;
+              }
+           }
+        });
+
         if (task.status === 'Complete') return;
 
-        // Render at Dept Tables
+        // 3. Render at fixed locations if not carried
         const centroid = this.departmentCentroids[task.dept];
-        if (centroid && task.status === 'In-Dept') {
-           this.taskGraphics.fillStyle(0xffffff, 1);
-           this.taskGraphics.fillRect(centroid.x + 40, centroid.y + 16, 20, 20);
+        if (centroid) {
+           if (task.status === 'In-Dept') {
+              // Draw the remaining box size based on pending blades
+              const pendingBlades = task.blades.filter(b => b.status === 'Pending').length;
+              if (pendingBlades > 0) {
+                 this.taskGraphics.fillStyle(0xffffff, 1);
+                 // Box height scales with blades
+                 const h = pendingBlades * 8;
+                 this.taskGraphics.fillRect(centroid.x + 40, centroid.y + 16 - h/2, 20, h);
+              }
+           }
+           if (task.status === 'Reception') {
+              this.taskGraphics.fillStyle(0xffffff, 1);
+              this.taskGraphics.fillRect(8 * 32 + 16 - 10, 23 * 32 + 16 - 10, 20, 20);
+           }
+           if (task.status === 'Meeting') {
+              // This is handled by manager carrying box, but if multiple appear at table:
+              this.taskGraphics.fillStyle(0xffffff, 1);
+              this.taskGraphics.fillRect(40 * 32 + 16 - 10, 15 * 32 + 16 - 10, 20, 20);
+           }
         }
       });
     });

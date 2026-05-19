@@ -43,6 +43,7 @@ export interface SimulationState {
   bottlenecks: string[]; // New: List of overloaded departments
   updateAgent: (id: string, data: Partial<AgentState>) => void;
   addProject: (project: Project) => void;
+  updateProject: (project: Project) => void; // New
   updateTask: (projectId: string, taskId: string, status: Task['status']) => void;
   setSimulationTime: (time: number) => void;
   recordCompletion: () => void; // New: Increment analytics
@@ -63,6 +64,9 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   })),
   addProject: (project) => set((state) => ({
     projects: [...state.projects, project]
+  })),
+  updateProject: (project) => set((state) => ({
+    projects: state.projects.map(p => p.id === project.id ? project : p)
   })),
   updateTask: (projectId, taskId, status) => set((state) => ({
     projects: state.projects.map(p => 

@@ -8,19 +8,20 @@ export interface NavNode {
 export class NavigationManager {
   private nodes: Map<string, NavNode> = new Map();
 
-  constructor(tileData: number[], width: number, height: number) {
-    this.bakeGraph(tileData, width, height);
+  constructor(tileData: number[], width: number, height: number, furnitureData: number[]) {
+    this.bakeGraph(tileData, width, height, furnitureData);
   }
 
-  private bakeGraph(tileData: number[], width: number, height: number) {
-    // Walkable GIDs: 1=Corridor, 2-8=Depts, 10=Desk(some parts)
-    // Wall GID 9 is strictly blocked
+  private bakeGraph(tileData: number[], width: number, height: number, furnitureData: number[]) {
     const walkableGids = [1, 2, 3, 4, 5, 6, 7, 8];
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const gid = tileData[y * width + x];
-        if (walkableGids.includes(gid)) {
+        const furnitureGid = furnitureData[y * width + x];
+        
+        // Walkable if floor is valid AND furniture is NOT blocking (Furniture GID 9=Wall, 10=Desk)
+        if (walkableGids.includes(gid) && furnitureGid === 0) {
           const id = `${x},${y}`;
           this.nodes.set(id, { id, x, y, neighbors: [] });
         }

@@ -40,11 +40,12 @@ export class MainScene extends Phaser.Scene {
     const map = this.make.tilemap({ key: 'map' });
     const tileset = map.addTilesetImage('office-tiles', 'tiles')!;
     map.createLayer('Floor', tileset, 0, 0);
-    map.createLayer('Furniture', tileset, 0, 0);
+    const furnitureLayer = map.createLayer('Furniture', tileset, 0, 0)!;
     
     const floorLayer = map.getLayer('Floor')!;
     const floorData = floorLayer.data.flat().map((tile: any) => tile.index || 0);
-    this.navManager = new NavigationManager(floorData, map.width, map.height);
+    const furnitureData = furnitureLayer.data.flat().map((tile: any) => tile.index || 0);
+    this.navManager = new NavigationManager(floorData, map.width, map.height, furnitureData);
 
     this.taskGraphics = this.add.graphics().setDepth(20);
     this.debugGraphics = this.add.graphics().setDepth(100).lineStyle(2, 0xff0000, 0.5);
@@ -110,6 +111,9 @@ export class MainScene extends Phaser.Scene {
   private handleAgentMovement(id: string, sprite: Phaser.GameObjects.Sprite, data: any) {
     if (data.isThinking) return;
 
+    // Agent Avoidance Force
+    this.applySeparation(id, sprite);
+
     if (data.targetLocation) {
       let pathObj = this.agentPaths.get(id);
       const targetX = data.targetLocation.x;
@@ -141,6 +145,25 @@ export class MainScene extends Phaser.Scene {
         }
       }
     }
+  }
+
+  private applySeparation(id: string, sprite: Phaser.GameObjects.Sprite) {
+    const separationDist = 32;
+    this.agents.forEach((other, otherId) => {
+      if (id === otherId) return;
+      const dx = sprite.x - other.sprite.x;
+      const dy = sprite.y - other.sprite.y;
+      const distSq = dx * dx + dy * dy;
+
+      if (distSq < separationDist * separationDist) {
+        const dist = Math.sqrt(distSq);
+        if (dist === 0) return;
+        // Shift left/away force
+        const force = (separationDist - dist) / separationDist;
+        sprite.x += (dx / dist) * force * 2;
+        sprite.y += (dy / dist) * force * 2;
+      }
+    });
   }
 
   private renderDebugPaths() {

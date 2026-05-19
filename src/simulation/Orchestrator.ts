@@ -225,12 +225,18 @@ export class ProjectManager {
       targetLocation: { x: 40 * 32 + 16, y: 15 * 32 + 16 } 
     });
 
-    // Summon Managers
+    // Summon Managers to unique spots around the large table
     const managers = Object.values(store.agents).filter(a => a.role === 'Manager');
-    managers.forEach(m => {
+    const offsets = [
+       { x: -1, y: -1 }, { x: 1, y: -1 }, { x: -2, y: 0 }, 
+       { x: 2, y: 0 }, { x: -1, y: 1 }, { x: 1, y: 1 }
+    ];
+
+    managers.forEach((m, i) => {
+       const offset = offsets[i % offsets.length];
        store.updateAgent(m.id, { 
          status: 'Heading to Meeting', 
-         targetLocation: { x: 40 * 32 + 16, y: 15 * 32 + 16 } 
+         targetLocation: { x: (40 + offset.x) * 32 + 16, y: (16 + offset.y) * 32 + 16 } 
        });
     });
 

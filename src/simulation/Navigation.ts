@@ -96,8 +96,13 @@ export class NavigationManager {
 
     // Reconstruct path
     const path: NavNode[] = [];
+    if (startId === endId) return [this.nodes.get(startId)!];
+    
     let current: string | null = endId;
-    if (!visited.has(endId)) return [];
+    if (!visited.has(endId)) {
+      console.warn(`No path found from ${startId} to ${endId}`);
+      return [];
+    }
 
     while (current !== null) {
       path.unshift(this.nodes.get(current)!);

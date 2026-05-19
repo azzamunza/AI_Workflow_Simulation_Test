@@ -68,18 +68,20 @@ export class MainScene extends Phaser.Scene {
       // Debug Graphics for Path
       this.debugGraphics = this.add.graphics();
       this.debugGraphics.lineStyle(2, 0xff0000, 1);
+      this.debugGraphics.setDepth(100); // Ensure it's on top
 
-      // Start movement test: Move from Bottom-Middle (Center Corridor) to Research
-      this.startMoving({ x: 40 * 32, y: 24 * 32 }, { x: 10 * 32, y: 10 * 32 });
+      // Test Agent using Atlas frame 10 (Agent color)
+      const agentSprite = this.add.sprite(416, 736, 'atlas', 10);
+      this.testAgent = agentSprite;
+      this.testAgent.setDepth(10);
+
+      this.add.text(416, 700, 'Agent 01', { fontSize: '12px', color: '#fff' }).setOrigin(0.5);
+
+      // Start movement test: Move from Current Position to Research
+      this.startMoving({ x: this.testAgent.x, y: this.testAgent.y }, { x: 10 * 32, y: 10 * 32 });
     } else {
       console.error('Failed to link tileset "office-tiles" to image "tiles". Check tileset name in JSON.');
     }
-
-    // Test Agent using Atlas frame 10 (Agent color)
-    const agentSprite = this.add.sprite(400, 720, 'atlas', 10);
-    this.testAgent = agentSprite; 
-
-    this.add.text(400, 690, 'Agent 01', { fontSize: '12px', color: '#fff' }).setOrigin(0.5);
 
     // Initial Store Sync
     useSimulationStore.getState().updateAgent('agent_01', {
@@ -87,7 +89,7 @@ export class MainScene extends Phaser.Scene {
       name: 'Agent 01',
       role: 'Worker',
       status: 'Idle',
-      location: { x: 400, y: 720 }
+      location: { x: 416, y: 736 }
     });
   }
 

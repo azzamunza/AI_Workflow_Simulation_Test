@@ -131,7 +131,9 @@ export class MainScene extends Phaser.Scene {
   update(time: number, _delta: number) {
     // Phase 3: Sync Visual "Thinking" State
     const agentData = useSimulationStore.getState().agents['agent_01'];
-    if (agentData?.isThinking) {
+    const isThinking = agentData?.isThinking || false;
+
+    if (isThinking) {
       this.thinkingIndicator.setAlpha(1);
       this.thinkingIndicator.setPosition(this.testAgent.x, this.testAgent.y - 40);
       // Pulse animation
@@ -140,8 +142,8 @@ export class MainScene extends Phaser.Scene {
       this.thinkingIndicator.setAlpha(0);
     }
 
-    // Movement Logic
-    if (this.pathIndex < this.currentPath.length) {
+    // Movement Logic: Only move if NOT thinking
+    if (!isThinking && this.pathIndex < this.currentPath.length) {
       const target = this.currentPath[this.pathIndex];
       const dx = target.x - this.testAgent.x;
       const dy = target.y - this.testAgent.y;

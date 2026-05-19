@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { useSimulationStore, Task } from '../../store';
+import { useSimulationStore, Task, Project, Blade } from '../../store';
 import { NavigationManager } from '../Navigation';
 import { ProjectManager } from '../Orchestrator';
 
@@ -148,7 +148,7 @@ export class MainScene extends Phaser.Scene {
     const projects = useSimulationStore.getState().projects;
     const storeAgents = useSimulationStore.getState().agents;
     
-    projects.forEach(project => {
+    projects.forEach((project: Project) => {
       project.tasks.forEach((task: Task) => {
         // 1. Check if an agent is carrying the entire task box
         const carrier = Object.values(storeAgents).find(a => a.carryingTaskId === task.id);
@@ -162,16 +162,21 @@ export class MainScene extends Phaser.Scene {
         }
 
         // 2. Check for Blades (pieces of the box)
-        task.blades.forEach(blade => {
+        task.blades.forEach((blade: Blade) => {
            const bladeCarrier = Object.values(storeAgents).find(a => a.carryingBladeId === blade.id);
            if (bladeCarrier) {
               const agentObj = this.agents.get(bladeCarrier.id);
               if (agentObj) {
-                 // Render blade (horizontal slice)
                  this.taskGraphics.fillStyle(0x00ccff, 1);
                  this.taskGraphics.fillRect(agentObj.sprite.x - 10, agentObj.sprite.y - 5, 20, 5);
                  return;
               }
+           }
+           
+           if (blade.status === 'Review') {
+              const reviewSpot = ProjectManager.getInstance().getDeptReviewLocation(task.dept);
+              this.taskGraphics.fillStyle(0x00ccff, 0.7);
+              this.taskGraphics.fillRect(reviewSpot.x - 10, reviewSpot.y - 5, 20, 5);
            }
         });
 

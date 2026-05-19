@@ -102,29 +102,84 @@ export class ProjectManager {
              const pendingBlade = taskInDept.blades.find(b => b.status === 'Pending');
              if (pendingBlade) {
                 console.log(`[Simulation] ${sa.name} taking blade ${pendingBlade.id}`);
-                // Move to inbox to pick up
                 const inbox = this.getDeptInboxLocation(sa.dept!);
                 store.updateAgent(sa.id, { 
                    status: 'Picking up Blade', 
                    targetLocation: inbox,
                    carryingBladeId: pendingBlade.id
                 });
-                
-                // Transition status so other sub-agents don't grab it
                 this.updateBladeStatus(project.id, taskInDept.id, pendingBlade.id, 'At-Desk');
-
-                // After picking up, go to desk
+                
+                // Working sequence
                 setTimeout(() => {
                    const desk = this.getSubAgentDeskLocation(sa.id);
                    store.updateAgent(sa.id, { 
                       status: 'Working at Desk', 
-                      targetLocation: desk
+                      targetLocation: { x: desk.x + 16, y: desk.y } // Move to right side of desk
                    });
-                }, 3000);
+                   
+                   // Finish work after some time
+                   setTimeout(() => {
+                      const reviewSpot = this.getDeptReviewLocation(sa.dept!);
+                      store.updateAgent(sa.id, {
+                         status: 'Moving to Review Desk',
+                         targetLocation: reviewSpot
+                      });
+                      
+                      setTimeout(() => {
+                         store.updateAgent(sa.id, {
+                            status: 'Waiting',
+                            carryingBladeId: undefined,
+                            targetLocation: { x: desk.x - 16, y: desk.y }
+                         });
+                         this.updateBladeStatus(project.id, taskInDept.id, pendingBlade.id, 'Review');
+                      }, 4000);
+                   }, 5000);
+                }, 4000);
              }
           }
        }
     });
+
+    // 4. Manager reviews blades
+    managers.forEach(m => {
+       if (m.status === 'Idle') {
+          const project = store.projects[0];
+          const taskInDept = project?.tasks.find(t => t.dept === m.dept);
+          const reviewBlade = taskInDept?.blades.find(b => b.status === 'Review');
+          
+          if (reviewBlade) {
+             const reviewSpot = this.getDeptReviewLocation(m.dept!);
+             store.updateAgent(m.id, {
+                status: 'Reviewing Blade',
+                targetLocation: reviewSpot,
+                carryingBladeId: reviewBlade.id
+             });
+             
+             setTimeout(() => {
+                const inbox = this.getDeptInboxLocation(m.dept!);
+                store.updateAgent(m.id, {
+                   status: 'Idle',
+                   targetLocation: inbox,
+                   carryingBladeId: undefined
+                });
+                this.updateBladeStatus(project.id, taskInDept.id, reviewBlade.id, 'Complete');
+                
+                // If all blades complete, task is complete
+                const allDone = taskInDept.blades.every(b => b.id === reviewBlade.id ? true : b.status === 'Complete');
+                if (allDone) {
+                   store.updateTask(project.id, taskInDept.id, 'Complete');
+                   store.recordCompletion();
+                }
+             }, 3000);
+          }
+       }
+    });
+  }
+
+  public getDeptReviewLocation(dept: string): { x: number, y: number } {
+     const centroid = this.getDeptInboxLocation(dept);
+     return { x: centroid.x, y: centroid.y + 32 * 8 }; // Near the Validation desk
   }
 
   private updateBladeStatus(projId: string, taskId: string, bladeId: string, status: Blade['status']) {

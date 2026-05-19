@@ -123,14 +123,10 @@ export class MainScene extends Phaser.Scene {
     // Check for new target
     let pathObj = this.agentPaths.get(id);
     if (data.targetLocation) {
-       // Simple Target Resolution
-       let targetX = 0, targetY = 0;
-       if (data.targetLocation.dept) {
-          const centroid = this.departmentCentroids[data.targetLocation.dept];
-          targetX = centroid.x + 16;
-          targetY = centroid.y + 16;
-       }
+       const targetX = data.targetLocation.x;
+       const targetY = data.targetLocation.y;
 
+       // If path doesn't exist or target changed
        if (!pathObj || (pathObj.path.length > 0 && (pathObj.path[pathObj.path.length-1].x !== targetX || pathObj.path[pathObj.path.length-1].y !== targetY))) {
          const nodes = this.navManager.findPath({x: sprite.x, y: sprite.y}, {x: targetX, y: targetY});
          if (nodes.length > 0) {

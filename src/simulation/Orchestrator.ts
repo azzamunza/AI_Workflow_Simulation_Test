@@ -86,17 +86,28 @@ export class ProjectManager {
     if (pendingTask) {
       // 1. Assign Courier to take task to Dept Inbox
       console.log(`[AI Orchestrator] Courier delivering ${pendingTask.name} to ${pendingTask.dept}`);
+      
+      // Define specific inbox coordinates (Top-Left of dept zone)
+      const deptLocations: Record<string, {x: number, y: number}> = {
+        "Art": { x: 5, y: 5 },
+        "Programming": { x: 55, y: 35 },
+        "QA": { x: 25, y: 35 },
+        "Research": { x: 5, y: 5 }
+      };
+      
+      const loc = deptLocations[pendingTask.dept] || { x: 38, y: 22 };
+
       store.updateAgent('courier-01', {
         status: `Delivering ${pendingTask.name}`,
         carryingTaskId: pendingTask.id,
-        targetLocation: { dept: pendingTask.dept, spot: 'inbox' } as any
+        targetLocation: { x: loc.x * 32 + 16, y: loc.y * 32 + 16 } as any
       });
 
       // 2. Mark task as in-progress (physically moving)
       store.updateTask(project.id, pendingTask.id, 'In-Progress');
     }
 
-    setTimeout(() => this.processNextLogisticsStep(), 10000);
+    setTimeout(() => this.processNextLogisticsStep(), 15000);
   }
 
   private setThinking(id: string, value: boolean) {

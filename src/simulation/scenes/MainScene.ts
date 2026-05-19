@@ -9,7 +9,8 @@ export class MainScene extends Phaser.Scene {
   private navManager!: NavigationManager;
   private currentPath: { x: number, y: number }[] = [];
   private pathIndex: number = 0;
-  private moveSpeed: number = 2;
+  private moveSpeed: number = 4;
+  private debugGraphics!: Phaser.GameObjects.Graphics;
 
   constructor() {
     super('MainScene');
@@ -64,8 +65,12 @@ export class MainScene extends Phaser.Scene {
       this.navManager = new NavigationManager(floorData, map.width, map.height);
       console.log('Navigation initialized.');
 
-      // Start movement test: Move from Bottom-Middle to Top-Left (Research)
-      this.startMoving({ x: 40 * 32, y: 48 * 32 }, { x: 10 * 32, y: 10 * 32 });
+      // Debug Graphics for Path
+      this.debugGraphics = this.add.graphics();
+      this.debugGraphics.lineStyle(2, 0xff0000, 1);
+
+      // Start movement test: Move from Bottom-Middle (Center Corridor) to Research
+      this.startMoving({ x: 40 * 32, y: 24 * 32 }, { x: 10 * 32, y: 10 * 32 });
     } else {
       console.error('Failed to link tileset "office-tiles" to image "tiles". Check tileset name in JSON.');
     }
@@ -91,6 +96,18 @@ export class MainScene extends Phaser.Scene {
     this.currentPath = nodes.map(n => ({ x: n.x * 32 + 16, y: n.y * 32 + 16 }));
     this.pathIndex = 0;
     
+    // Draw Debug Path
+    this.debugGraphics.clear();
+    this.debugGraphics.lineStyle(2, 0xff0000, 1);
+    if (this.currentPath.length > 1) {
+      this.debugGraphics.beginPath();
+      this.debugGraphics.moveTo(this.currentPath[0].x, this.currentPath[0].y);
+      for (let i = 1; i < this.currentPath.length; i++) {
+        this.debugGraphics.lineTo(this.currentPath[i].x, this.currentPath[i].y);
+      }
+      this.debugGraphics.strokePath();
+    }
+
     if (this.currentPath.length > 0) {
       this.testAgent.setPosition(this.currentPath[0].x, this.currentPath[0].y);
     }

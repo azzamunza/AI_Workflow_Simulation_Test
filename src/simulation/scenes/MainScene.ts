@@ -57,8 +57,7 @@ export class MainScene extends Phaser.Scene {
       }
 
       // Initialize Navigation
-      // flat() might be tricky on nested Tiled arrays, but standard is fine
-      const floorData = floorLayer?.layer.data.flat().map(tile => tile.index) || [];
+      const floorData = floorLayer.data.flat().map((tile: any) => tile.index || 0);
       this.navManager = new NavigationManager(floorData, map.width, map.height);
       console.log('Navigation initialized.');
     } else {

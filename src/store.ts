@@ -26,18 +26,24 @@ interface Task {
 
 interface SimulationState {
   agents: Record<string, AgentState>;
-  projects: Project[]; // New: Track active client projects
+  projects: Project[];
   simulationTime: number;
+  completedTasks: number; // New: Analytics
+  bottlenecks: string[]; // New: List of overloaded departments
   updateAgent: (id: string, data: Partial<AgentState>) => void;
   addProject: (project: Project) => void;
   updateTask: (projectId: string, taskId: string, status: Task['status']) => void;
   setSimulationTime: (time: number) => void;
+  recordCompletion: () => void; // New: Increment analytics
+  setBottlenecks: (depts: string[]) => void; // New: Sync visual warnings
 }
 
 export const useSimulationStore = create<SimulationState>((set) => ({
   agents: {},
   projects: [],
   simulationTime: 0,
+  completedTasks: 0,
+  bottlenecks: [],
   updateAgent: (id, data) => set((state) => ({
     agents: {
       ...state.agents,
@@ -55,4 +61,6 @@ export const useSimulationStore = create<SimulationState>((set) => ({
     )
   })),
   setSimulationTime: (time) => set({ simulationTime: time }),
+  recordCompletion: () => set((state) => ({ completedTasks: state.completedTasks + 1 })),
+  setBottlenecks: (depts) => set({ bottlenecks: depts }),
 }));

@@ -58,6 +58,26 @@ export class ProjectManager {
 
     // 5. Exit "Thinking" State
     this.setThinking(managerId, false);
+
+    // 6. Phase 4: Trigger "Simulated Completion" after a delay
+    setTimeout(() => this.simulateThroughput(), 5000);
+  }
+
+  private simulateThroughput() {
+    const projects = useSimulationStore.getState().projects;
+    if (projects.length === 0) return;
+
+    const projId = projects[0].id;
+    const task = projects[0].tasks.find(t => t.status === 'Pending');
+
+    if (task) {
+      console.log(`[AI Orchestrator] Completing task: ${task.name}`);
+      useSimulationStore.getState().updateTask(projId, task.id, 'Complete');
+      useSimulationStore.getState().recordCompletion();
+      
+      // Continue processing
+      setTimeout(() => this.simulateThroughput(), 3000);
+    }
   }
 
   private setThinking(id: string, value: boolean) {

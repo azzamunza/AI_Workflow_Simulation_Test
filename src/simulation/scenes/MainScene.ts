@@ -10,6 +10,7 @@ export class MainScene extends Phaser.Scene {
   private thinkingIndicator!: Phaser.GameObjects.Text;
   private navManager!: NavigationManager;
   private taskGraphics!: Phaser.GameObjects.Graphics;
+  private bottleneckGraphics!: Phaser.GameObjects.Graphics;
   private departmentCentroids: Record<string, { x: number, y: number }> = {
     "Research": { x: 12 * 32, y: 10 * 32 },
     "PM": { x: 62 * 32, y: 10 * 32 },
@@ -85,6 +86,10 @@ export class MainScene extends Phaser.Scene {
       // Task Graphics
       this.taskGraphics = this.add.graphics();
       this.taskGraphics.setDepth(20);
+
+      // Bottleneck Graphics
+      this.bottleneckGraphics = this.add.graphics();
+      this.bottleneckGraphics.setDepth(15);
 
       // Test Agent using Atlas frame 10 (Agent color)
       const agentSprite = this.add.sprite(416, 736, 'atlas', 10);
@@ -198,12 +203,19 @@ export class MainScene extends Phaser.Scene {
 
   private renderTasks() {
     this.taskGraphics.clear();
+    this.bottleneckGraphics.clear();
     const projects = useSimulationStore.getState().projects;
+    const deptCounts: Record<string, number> = {};
 
     projects.forEach(project => {
       project.tasks.forEach((task, index) => {
+        if (task.status === 'Complete') return; // Don't render finished work for now
+        
         const centroid = this.departmentCentroids[task.dept];
         if (!centroid) return;
+
+        // Track bottleneck logic
+        deptCounts[task.dept] = (deptCounts[task.dept] || 0) + 1;
 
         // Spread tasks out in the department inbox
         const x = centroid.x + (index % 3) * 40;
@@ -221,6 +233,24 @@ export class MainScene extends Phaser.Scene {
         }
       });
     });
+
+    // Render Bottleneck Warnings (if more than 2 pending tasks in a dept)
+    const bottleneckDepts: string[] = [];
+    Object.entries(deptCounts).forEach(([dept, count]) => {
+      if (count >= 2) {
+        bottleneckDepts.push(dept);
+        const centroid = this.departmentCentroids[dept];
+        // Red glow under department
+        this.bottleneckGraphics.fillStyle(0xff0000, 0.3);
+        this.bottleneckGraphics.fillCircle(centroid.x + 40, centroid.y + 40, 80);
+      }
+    });
+    
+    // Sync bottlenecks to store if changed
+    const currentBottlenecks = useSimulationStore.getState().bottlenecks;
+    if (JSON.stringify(currentBottlenecks) !== JSON.stringify(bottleneckDepts)) {
+      useSimulationStore.getState().setBottlenecks(bottleneckDepts);
+    }
   }
 
   private drawDashedRect(x: number, y: number, w: number, h: number, color: number) {

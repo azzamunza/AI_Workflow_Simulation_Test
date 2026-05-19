@@ -27,9 +27,9 @@ export class ProjectManager {
     // 2. Client (starts outside)
     store.updateAgent('client', {
       id: 'client', name: 'Client', role: 'Client',
-      status: 'Entering', location: { x: 0, y: 23 * 32 + 16 }, isThinking: false,
+      status: 'Entering', location: { x: 32, y: 23 * 32 + 16 }, isThinking: false,
       targetLocation: { x: 7 * 32 + 16, y: 23 * 32 + 16 },
-      carryingTaskId: 'initial-client-box' // Client starts with the box
+      carryingTaskId: 'initial-client-box'
     });
 
     // 3. Dept Managers & Sub-Agents (start in their depts)

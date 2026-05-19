@@ -61,8 +61,7 @@ export class MainScene extends Phaser.Scene {
         const label = this.add.text(agent.location.x, agent.location.y - 30, agent.name, { fontSize: '12px', color: '#fff' }).setOrigin(0.5).setDepth(11);
         const thinking = this.add.text(agent.location.x, agent.location.y - 40, '...', { fontSize: '20px', color: '#ffff00', fontStyle: 'bold' }).setOrigin(0.5).setAlpha(0).setDepth(12);
         
-        // Initial setup for Dept agents
-        if (agent.role === 'Manager' || agent.role === 'Sub-Agent') {
+        if ((agent.role === 'Manager' || agent.role === 'Sub-Agent') && agent.location.x === 0) {
            const pos = this.departmentCentroids[agent.dept || ""];
            if (pos) {
              sprite.setPosition(pos.x + 64, pos.y + 64);
@@ -78,7 +77,6 @@ export class MainScene extends Phaser.Scene {
     this.syncAgentsWithStore();
     this.renderTasks();
 
-    // Orchestrator Step
     ProjectManager.getInstance().step();
 
     const storeAgents = useSimulationStore.getState().agents;
@@ -146,12 +144,12 @@ export class MainScene extends Phaser.Scene {
 
   private renderTasks() {
     this.taskGraphics.clear();
-    const projects = useSimulationStore.getState().projects;
-    const storeAgents = useSimulationStore.getState().agents;
+    const store = useSimulationStore.getState();
+    const projects = store.projects;
+    const storeAgents = store.agents;
     
     projects.forEach((project: Project) => {
       project.tasks.forEach((task: Task) => {
-        // 1. Check if an agent is carrying the entire task box
         const carrier = Object.values(storeAgents).find(a => a.carryingTaskId === task.id);
         if (carrier) {
           const agentObj = this.agents.get(carrier.id);
@@ -162,7 +160,6 @@ export class MainScene extends Phaser.Scene {
           }
         }
 
-        // 2. Check for Blades (pieces of the box)
         if (task.blades) {
           task.blades.forEach((blade: Blade) => {
             const bladeCarrier = Object.values(storeAgents).find(a => a.carryingBladeId === blade.id);
@@ -185,15 +182,12 @@ export class MainScene extends Phaser.Scene {
 
         if (task.status === 'Complete') return;
 
-        // 3. Render at fixed locations if not carried
         const centroid = this.departmentCentroids[task.dept];
         if (centroid) {
            if (task.status === 'In-Dept' && task.blades) {
-              // Draw the remaining box size based on pending blades
               const pendingBlades = task.blades.filter(b => b.status === 'Pending').length;
               if (pendingBlades > 0) {
                  this.taskGraphics.fillStyle(0xffffff, 1);
-                 // Box height scales with blades
                  const h = pendingBlades * 8;
                  this.taskGraphics.fillRect(centroid.x + 40, centroid.y + 16 - h/2, 20, h);
               }
@@ -203,7 +197,6 @@ export class MainScene extends Phaser.Scene {
               this.taskGraphics.fillRect(8 * 32 + 16 - 10, 23 * 32 + 16 - 10, 20, 20);
            }
            if (task.status === 'Meeting') {
-              // This is handled by manager carrying box, but if multiple appear at table:
               this.taskGraphics.fillStyle(0xffffff, 1);
               this.taskGraphics.fillRect(40 * 32 + 16 - 10, 15 * 32 + 16 - 10, 20, 20);
            }

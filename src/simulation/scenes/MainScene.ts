@@ -10,7 +10,7 @@ export class MainScene extends Phaser.Scene {
   private navManager!: NavigationManager;
   private taskGraphics!: Phaser.GameObjects.Graphics;
   private bottleneckGraphics!: Phaser.GameObjects.Graphics;
-  private debugGraphics!: Phaser.GameObjects.Graphics;
+  protected debugGraphics!: Phaser.GameObjects.Graphics;
 
   private departmentCentroids: Record<string, { x: number, y: number }> = {
     "Research": { x: 5 * 32, y: 5 * 32 },

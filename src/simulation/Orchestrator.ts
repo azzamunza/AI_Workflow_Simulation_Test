@@ -20,7 +20,7 @@ export class ProjectManager {
     
     // Spawn Workers for Departments
     const depts = ["Art", "Programming", "QA", "Research"];
-    depts.forEach((dept, i) => {
+    depts.forEach((dept) => {
       store.updateAgent(`worker-${dept}`, {
         id: `worker-${dept}`,
         name: `${dept} Worker`,

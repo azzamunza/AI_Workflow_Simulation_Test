@@ -1,11 +1,13 @@
 import Phaser from 'phaser';
 import { useSimulationStore } from '../../store';
 import { NavigationManager } from '../Navigation';
+import { ProjectManager } from '../Orchestrator';
 
 export class MainScene extends Phaser.Scene {
   private lastSyncTime: number = 0;
   private syncInterval: number = 100; // 100ms throttle
   private testAgent!: Phaser.GameObjects.Sprite;
+  private thinkingIndicator!: Phaser.GameObjects.Text;
   private navManager!: NavigationManager;
   private currentPath: { x: number, y: number }[] = [];
   private pathIndex: number = 0;
@@ -77,20 +79,28 @@ export class MainScene extends Phaser.Scene {
 
       this.add.text(416, 700, 'Agent 01', { fontSize: '12px', color: '#fff' }).setOrigin(0.5);
 
-      // Start movement test: Move from Current Position to Research
-      this.startMoving({ x: this.testAgent.x, y: this.testAgent.y }, { x: 10 * 32, y: 10 * 32 });
-    } else {
-      console.error('Failed to link tileset "office-tiles" to image "tiles". Check tileset name in JSON.');
-    }
+      // Thinking Indicator (Hidden by default)
+      this.thinkingIndicator = this.add.text(416, 680, '...', { 
+        fontSize: '20px', 
+        color: '#ffff00', 
+        fontStyle: 'bold' 
+      }).setOrigin(0.5).setAlpha(0);
 
-    // Initial Store Sync
-    useSimulationStore.getState().updateAgent('agent_01', {
-      id: 'agent_01',
-      name: 'Agent 01',
-      role: 'Worker',
-      status: 'Idle',
-      location: { x: 416, y: 736 }
-    });
+      // Initial Store Sync
+      useSimulationStore.getState().updateAgent('agent_01', {
+        id: 'agent_01',
+        name: 'Agent 01',
+        role: 'PM', // Changed to PM for Phase 3
+        status: 'Idle',
+        location: { x: 416, y: 736 },
+        isThinking: false
+      });
+
+      // Phase 3: Trigger Project Planning
+      ProjectManager.getInstance().planProject("BlueBush Web App", "agent_01");
+
+      // Start movement test
+      this.startMoving({ x: this.testAgent.x, y: this.testAgent.y }, { x: 10 * 32, y: 10 * 32 });
   }
 
   private startMoving(start: { x: number, y: number }, end: { x: number, y: number }) {
@@ -116,6 +126,17 @@ export class MainScene extends Phaser.Scene {
   }
 
   update(time: number, _delta: number) {
+    // Phase 3: Sync Visual "Thinking" State
+    const agentData = useSimulationStore.getState().agents['agent_01'];
+    if (agentData?.isThinking) {
+      this.thinkingIndicator.setAlpha(1);
+      this.thinkingIndicator.setPosition(this.testAgent.x, this.testAgent.y - 40);
+      // Pulse animation
+      this.thinkingIndicator.setScale(1 + Math.sin(time / 200) * 0.2);
+    } else {
+      this.thinkingIndicator.setAlpha(0);
+    }
+
     // Movement Logic
     if (this.pathIndex < this.currentPath.length) {
       const target = this.currentPath[this.pathIndex];

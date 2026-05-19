@@ -25,26 +25,43 @@ export class MainScene extends Phaser.Scene {
 
   create() {
     console.log('Creating scene...');
+    
+    // Check if map data exists in cache
+    if (!this.cache.tilemap.has('map')) {
+      console.error('Tilemap "map" not found in cache!');
+      return;
+    }
+
     // Tilemap
     const map = this.make.tilemap({ key: 'map' });
+    console.log('Tilemap object created:', map.width, 'x', map.height);
+
+    // Ensure tileset image is in cache
+    if (!this.textures.exists('tiles')) {
+      console.error('Texture "tiles" not found in cache!');
+      return;
+    }
+
     const tileset = map.addTilesetImage('office-tiles', 'tiles');
+    console.log('Tileset added:', tileset?.name);
     
     if (tileset) {
       const floorLayer = map.createLayer('Floor', tileset, 0, 0);
-      map.createLayer('Furniture', tileset, 0, 0);
+      const furnitureLayer = map.createLayer('Furniture', tileset, 0, 0);
 
       if (!floorLayer) {
-        console.error('Floor layer not found!');
+        console.error('Floor layer not found in JSON!');
       } else {
-        console.log('Map layers created.');
+        console.log('Floor layer created.');
       }
 
       // Initialize Navigation
+      // flat() might be tricky on nested Tiled arrays, but standard is fine
       const floorData = floorLayer?.layer.data.flat().map(tile => tile.index) || [];
       this.navManager = new NavigationManager(floorData, map.width, map.height);
       console.log('Navigation initialized.');
     } else {
-      console.error('Tileset not found!');
+      console.error('Failed to link tileset "office-tiles" to image "tiles". Check tileset name in JSON.');
     }
 
     // Test Agent using Atlas frame 10 (Agent color)

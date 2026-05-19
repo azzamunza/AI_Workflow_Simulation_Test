@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSimulationStore } from '../store';
+import { useSimulationStore, Task } from '../store';
 
 export const HUD: React.FC = () => {
   const agents = useSimulationStore((state) => state.agents);
@@ -70,7 +70,7 @@ export const HUD: React.FC = () => {
             <div key={project.id} style={{ backgroundColor: 'rgba(255,255,255,0.1)', padding: '10px', borderRadius: '5px' }}>
               <strong>📁 {project.name}</strong>
               <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                {project.tasks.map(task => (
+                {project.tasks.map((task: Task) => (
                   <div key={task.id} style={{ 
                     fontSize: '12px',
                     opacity: task.status === 'Complete' ? 0.3 : 1.0,

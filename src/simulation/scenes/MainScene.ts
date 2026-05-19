@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { useSimulationStore } from '../../store';
+import { useSimulationStore, Task } from '../../store';
 import { NavigationManager } from '../Navigation';
 import { ProjectManager } from '../Orchestrator';
 
@@ -151,7 +151,7 @@ export class MainScene extends Phaser.Scene {
     const storeAgents = useSimulationStore.getState().agents;
     
     projects.forEach(project => {
-      project.tasks.forEach((task) => {
+      project.tasks.forEach((task: Task) => {
         const carrier = Object.values(storeAgents).find(a => a.carryingTaskId === task.id);
         if (carrier) {
           const agentObj = this.agents.get(carrier.id);

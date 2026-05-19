@@ -13,14 +13,14 @@ interface AgentState {
   targetLocation?: { x: number, y: number }; 
 }
 
-interface Blade {
+export interface Blade {
   id: string;
   taskId: string;
   status: 'Pending' | 'At-Desk' | 'Review' | 'Complete';
   workProgress: number;
 }
 
-interface Task {
+export interface Task {
   id: string;
   name: string;
   dept: string;
@@ -28,7 +28,14 @@ interface Task {
   blades: Blade[];
 }
 
-interface SimulationState {
+export interface Project {
+  id: string;
+  name: string;
+  status: 'Planning' | 'Active' | 'Complete';
+  tasks: Task[];
+}
+
+export interface SimulationState {
   agents: Record<string, AgentState>;
   projects: Project[];
   simulationTime: number;
@@ -60,7 +67,7 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   updateTask: (projectId, taskId, status) => set((state) => ({
     projects: state.projects.map(p => 
       p.id === projectId 
-        ? { ...p, tasks: p.tasks.map(t => t.id === taskId ? { ...t, status } : t) }
+        ? { ...p, tasks: p.tasks.map((t: Task) => t.id === taskId ? { ...t, status } : t) }
         : p
     )
   })),

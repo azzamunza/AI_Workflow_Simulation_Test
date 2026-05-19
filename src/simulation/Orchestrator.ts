@@ -6,7 +6,6 @@ import { useSimulationStore } from '../store';
  */
 export class ProjectManager {
   private static instance: ProjectManager;
-  private isThinking: boolean = false;
 
   public static getInstance(): ProjectManager {
     if (!ProjectManager.instance) {

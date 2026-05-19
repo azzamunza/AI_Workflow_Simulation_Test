@@ -53,10 +53,22 @@ export class NavigationManager {
     const startId = `${startX},${startY}`;
     const endId = `${endX},${endY}`;
 
-    console.log(`Pathfinding from ${startId} to ${endId}. Walkable nodes: ${this.nodes.size}`);
-
+    // Debugging: Log the first 5 walkable nodes if lookup fails
     if (!this.nodes.has(startId)) {
-       console.warn(`Start node ${startId} not in walkable nodes!`);
+       const keys = Array.from(this.nodes.keys()).slice(0, 5);
+       console.warn(`Start node ${startId} not found. Sample walkable nodes: ${keys.join(' | ')}`);
+       
+       // FAILSAFE: Find nearest node
+       let nearestId = "";
+       let minDist = Infinity;
+       for (const node of this.nodes.values()) {
+         const d = Math.pow(node.x - startX, 2) + Math.pow(node.y - startY, 2);
+         if (d < minDist) {
+           minDist = d;
+           nearestId = node.id;
+         }
+       }
+       if (nearestId) return this.findPath({x: this.nodes.get(nearestId)!.x * 32, y: this.nodes.get(nearestId)!.y * 32}, end);
        return [];
     }
     if (!this.nodes.has(endId)) {

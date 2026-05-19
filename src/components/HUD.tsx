@@ -5,7 +5,7 @@ export const HUD: React.FC = () => {
   const agents = useSimulationStore((state) => state.agents);
 
   return (
-    <div style={{
+    <div id="hud-container" style={{
       position: 'absolute',
       top: 0,
       left: 0,
@@ -15,11 +15,11 @@ export const HUD: React.FC = () => {
       fontFamily: 'monospace',
       textShadow: '1px 1px 2px black'
     }}>
-      <h2 style={{ margin: 0 }}>AI Office Simulation v1.0</h2>
-      <div style={{ marginTop: '20px' }}>
-        <strong>Live Agents:</strong>
+      <h2 id="hud-title" style={{ margin: 0 }}>AI Office Simulation v1.0</h2>
+      <div id="hud-agent-list" style={{ marginTop: '20px' }}>
+        <strong id="hud-agents-label">Live Agents:</strong>
         {Object.values(agents).map((agent) => (
-          <div key={agent.id} style={{ marginLeft: '10px', fontSize: '14px' }}>
+          <div key={agent.id} id={`agent-row-${agent.id}`} style={{ marginLeft: '10px', fontSize: '14px' }}>
             {agent.name} ({agent.role}) - {agent.status} at [{agent.location.x}, {agent.location.y}]
           </div>
         ))}

@@ -13,7 +13,8 @@ export class NavigationManager {
   }
 
   private bakeGraph(tileData: number[], width: number, height: number) {
-    // Walkable GIDs: 1=Corridor, 2=Art, 3=Prog, 4=PM, 5=Res, 6=AI, 7=QA, 8=Plan
+    // Walkable GIDs: 1=Corridor, 2-8=Depts, 10=Desk(some parts)
+    // Wall GID 9 is strictly blocked
     const walkableGids = [1, 2, 3, 4, 5, 6, 7, 8];
 
     for (let y = 0; y < height; y++) {

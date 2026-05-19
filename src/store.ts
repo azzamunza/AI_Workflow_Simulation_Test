@@ -3,27 +3,29 @@ import { create } from 'zustand';
 interface AgentState {
   id: string;
   name: string;
-  role: 'PM' | 'Worker' | 'Courier';
+  role: 'Receptionist' | 'Manager' | 'Sub-Agent' | 'Client' | 'Courier';
+  dept?: string;
   status: string;
   location: { x: number, y: number };
   isThinking: boolean;
-  carryingTaskId?: string; // New: Task ID being physically moved
-  targetLocation?: { x: number, y: number }; // New: Goal coordinate
+  carryingTaskId?: string; 
+  carryingBladeId?: string; // New: Piece of a task
+  targetLocation?: { x: number, y: number }; 
 }
 
-interface Project {
+interface Blade {
   id: string;
-  name: string;
-  status: 'Planning' | 'Active' | 'Complete';
-  tasks: Task[];
+  taskId: string;
+  status: 'Pending' | 'At-Desk' | 'Review' | 'Complete';
+  workProgress: number;
 }
 
 interface Task {
   id: string;
   name: string;
   dept: string;
-  status: 'Pending' | 'In-Progress' | 'Complete' | 'Stubbed'; // Added 'Stubbed'
-  isStub?: boolean; // New: Identifies placeholder contracts
+  status: 'Reception' | 'Meeting' | 'In-Dept' | 'Complete';
+  blades: Blade[];
 }
 
 interface SimulationState {

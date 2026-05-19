@@ -46,9 +46,10 @@ export class MainScene extends Phaser.Scene {
     console.log('Tileset added:', tileset?.name);
     
     if (tileset) {
-      const floorLayer = map.createLayer('Floor', tileset, 0, 0);
-      const furnitureLayer = map.createLayer('Furniture', tileset, 0, 0);
+      map.createLayer('Floor', tileset, 0, 0);
+      map.createLayer('Furniture', tileset, 0, 0);
 
+      const floorLayer = map.getLayer('Floor');
       if (!floorLayer) {
         console.error('Floor layer not found in JSON!');
       } else {

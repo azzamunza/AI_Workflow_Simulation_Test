@@ -52,9 +52,9 @@ export class MainScene extends Phaser.Scene {
       const floorLayer = map.getLayer('Floor');
       if (!floorLayer) {
         console.error('Floor layer not found in JSON!');
-      } else {
-        console.log('Floor layer created.');
+        return;
       }
+      console.log('Floor layer created.');
 
       // Initialize Navigation
       const floorData = floorLayer.data.flat().map((tile: any) => tile.index || 0);

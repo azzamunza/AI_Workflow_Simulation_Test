@@ -5,199 +5,154 @@ import { ProjectManager } from '../Orchestrator';
 
 export class MainScene extends Phaser.Scene {
   private lastSyncTime: number = 0;
-  private syncInterval: number = 100; // 100ms throttle
-  private testAgent!: Phaser.GameObjects.Sprite;
-  private thinkingIndicator!: Phaser.GameObjects.Text;
+  private syncInterval: number = 100;
+  private agents: Map<string, { sprite: Phaser.GameObjects.Sprite, label: Phaser.GameObjects.Text, thinking: Phaser.GameObjects.Text }> = new Map();
   private navManager!: NavigationManager;
   private taskGraphics!: Phaser.GameObjects.Graphics;
   private bottleneckGraphics!: Phaser.GameObjects.Graphics;
-  private departmentCentroids: Record<string, { x: number, y: number }> = {
-    "Research": { x: 12 * 32, y: 10 * 32 },
-    "PM": { x: 62 * 32, y: 10 * 32 },
-    "Art": { x: 12 * 32, y: 40 * 32 },
-    "Programming": { x: 62 * 32, y: 40 * 32 },
-    "AI Ops": { x: 30 * 32, y: 10 * 32 },
-    "QA": { x: 30 * 32, y: 40 * 32 },
-    "Planning": { x: 50 * 32, y: 40 * 32 }
-  };
-  private currentPath: { x: number, y: number }[] = [];
-  private pathIndex: number = 0;
-  private moveSpeed: number = 4;
   private debugGraphics!: Phaser.GameObjects.Graphics;
+
+  private departmentCentroids: Record<string, { x: number, y: number }> = {
+    "Research": { x: 5 * 32, y: 5 * 32 },
+    "PM": { x: 55 * 32, y: 5 * 32 },
+    "Art": { x: 5 * 32, y: 35 * 32 },
+    "Programming": { x: 55 * 32, y: 35 * 32 },
+    "AI Ops": { x: 25 * 32, y: 5 * 32 },
+    "QA": { x: 25 * 32, y: 35 * 32 },
+    "Planning": { x: 45 * 32, y: 35 * 32 }
+  };
+
+  private agentPaths: Map<string, { path: { x: number, y: number }[], index: number }> = new Map();
 
   constructor() {
     super('MainScene');
   }
 
   preload() {
-    console.log('Preloading assets...');
     this.load.image('tiles', './assets/atlas_global.png');
     this.load.tilemapTiledJSON('map', './assets/map_office.json');
     this.load.spritesheet('atlas', './assets/atlas_global.png', { frameWidth: 32, frameHeight: 32 });
-
-    this.load.on('loaderror', (fileObj: any) => {
-      console.error('Error loading asset:', fileObj.key, fileObj.src);
-    });
   }
 
   create() {
-    console.log('Creating scene...');
-    
-    // Check if map data exists in cache
-    if (!this.cache.tilemap.has('map')) {
-      console.error('Tilemap "map" not found in cache!');
-      return;
-    }
-
-    // Tilemap
     const map = this.make.tilemap({ key: 'map' });
-    console.log('Tilemap object created:', map.width, 'x', map.height);
-
-    // Ensure tileset image is in cache
-    if (!this.textures.exists('tiles')) {
-      console.error('Texture "tiles" not found in cache!');
-      return;
-    }
-
     const tileset = map.addTilesetImage('office-tiles', 'tiles');
-    console.log('Tileset added:', tileset?.name);
-    
     if (tileset) {
       map.createLayer('Floor', tileset, 0, 0);
       map.createLayer('Furniture', tileset, 0, 0);
-
-      const floorLayer = map.getLayer('Floor');
-      if (!floorLayer) {
-        console.error('Floor layer not found in JSON!');
-        return;
-      }
-      console.log('Floor layer created.');
-
-      // Initialize Navigation
+      const floorLayer = map.getLayer('Floor')!;
       const floorData = floorLayer.data.flat().map((tile: any) => tile.index || 0);
       this.navManager = new NavigationManager(floorData, map.width, map.height);
-      console.log('Navigation initialized.');
-
-      // Debug Graphics for Path
-      this.debugGraphics = this.add.graphics();
-      this.debugGraphics.lineStyle(2, 0xff0000, 1);
-      this.debugGraphics.setDepth(100); // Ensure it's on top
-
-      // Task Graphics
-      this.taskGraphics = this.add.graphics();
-      this.taskGraphics.setDepth(20);
-
-      // Bottleneck Graphics
-      this.bottleneckGraphics = this.add.graphics();
-      this.bottleneckGraphics.setDepth(15);
-
-      // Test Agent using Atlas frame 10 (Agent color)
-      const agentSprite = this.add.sprite(416, 736, 'atlas', 10);
-      this.testAgent = agentSprite;
-      this.testAgent.setDepth(10);
-
-      this.add.text(416, 700, 'Agent 01', { fontSize: '12px', color: '#fff' }).setOrigin(0.5);
-
-      // Thinking Indicator (Hidden by default)
-      this.thinkingIndicator = this.add.text(416, 680, '...', { 
-        fontSize: '20px', 
-        color: '#ffff00', 
-        fontStyle: 'bold' 
-      }).setOrigin(0.5).setAlpha(0);
-
-      // Initial Store Sync
-      useSimulationStore.getState().updateAgent('agent_01', {
-        id: 'agent_01',
-        name: 'Agent 01',
-        role: 'PM', // Changed to PM for Phase 3
-        status: 'Idle',
-        location: { x: 416, y: 736 },
-        isThinking: false
-      });
-
-      // Phase 3: Trigger Project Planning
-      ProjectManager.getInstance().planProject("BlueBush Web App", "agent_01");
-
-      // Start movement test
-      this.startMoving({ x: this.testAgent.x, y: this.testAgent.y }, { x: 10 * 32, y: 10 * 32 });
-    } else {
-      console.error('Failed to link tileset "office-tiles" to image "tiles". Check tileset name in JSON.');
     }
+
+    this.taskGraphics = this.add.graphics().setDepth(20);
+    this.bottleneckGraphics = this.add.graphics().setDepth(15);
+    this.debugGraphics = this.add.graphics().setDepth(100).lineStyle(2, 0xff0000, 0.5);
+
+    // Init Logic
+    ProjectManager.getInstance().initializeAgents();
+    
+    // Create Initial PM
+    this.syncAgentsWithStore();
+
+    // Planning
+    ProjectManager.getInstance().planProject("BlueBush Web App", "worker-Research");
   }
 
-  private startMoving(start: { x: number, y: number }, end: { x: number, y: number }) {
-    const nodes = this.navManager.findPath(start, end);
-    this.currentPath = nodes.map(n => ({ x: n.x * 32 + 16, y: n.y * 32 + 16 }));
-    this.pathIndex = 0;
-    
-    // Draw Debug Path
-    this.debugGraphics.clear();
-    this.debugGraphics.lineStyle(2, 0xff0000, 1);
-    if (this.currentPath.length > 1) {
-      this.debugGraphics.beginPath();
-      this.debugGraphics.moveTo(this.currentPath[0].x, this.currentPath[0].y);
-      for (let i = 1; i < this.currentPath.length; i++) {
-        this.debugGraphics.lineTo(this.currentPath[i].x, this.currentPath[i].y);
-      }
-      this.debugGraphics.strokePath();
-    }
+  private syncAgentsWithStore() {
+    const storeAgents = useSimulationStore.getState().agents;
+    Object.values(storeAgents).forEach(agent => {
+      if (!this.agents.has(agent.id)) {
+        const sprite = this.add.sprite(416, 736, 'atlas', 10).setDepth(10);
+        const label = this.add.text(416, 700, agent.name, { fontSize: '12px', color: '#fff' }).setOrigin(0.5).setDepth(11);
+        const thinking = this.add.text(416, 680, '...', { fontSize: '20px', color: '#ffff00', fontStyle: 'bold' }).setOrigin(0.5).setAlpha(0).setDepth(12);
+        
+        // Initial Position for Workers
+        if (agent.role === 'Worker') {
+           const dept = agent.id.split('-')[1];
+           const pos = this.departmentCentroids[dept];
+           if (pos) {
+             sprite.setPosition(pos.x + 64, pos.y + 64);
+           }
+        }
 
-    if (this.currentPath.length > 0) {
-      this.testAgent.setPosition(this.currentPath[0].x, this.currentPath[0].y);
-    }
+        this.agents.set(agent.id, { sprite, label, thinking });
+      }
+    });
   }
 
   update(time: number, _delta: number) {
-    // Phase 4: Render Task Boxes & Stubs
+    this.syncAgentsWithStore();
     this.renderTasks();
 
-    // Phase 3: Sync Visual "Thinking" State
-    const agentData = useSimulationStore.getState().agents['agent_01'];
-    const isThinking = agentData?.isThinking || false;
+    const storeAgents = useSimulationStore.getState().agents;
+    this.agents.forEach((obj, id) => {
+      const data = storeAgents[id];
+      if (!data) return;
 
-    if (isThinking) {
-      this.thinkingIndicator.setAlpha(1);
-      this.thinkingIndicator.setPosition(this.testAgent.x, this.testAgent.y - 40);
-      // Pulse animation
-      this.thinkingIndicator.setScale(1 + Math.sin(time / 200) * 0.2);
-    } else {
-      this.thinkingIndicator.setAlpha(0);
+      // Thinking Animation
+      if (data.isThinking) {
+        obj.thinking.setAlpha(1);
+        obj.thinking.setPosition(obj.sprite.x, obj.sprite.y - 40);
+        obj.thinking.setScale(1 + Math.sin(time / 200) * 0.2);
+      } else {
+        obj.thinking.setAlpha(0);
+      }
+
+      // Movement
+      this.handleAgentMovement(id, obj.sprite, data);
+
+      // Update Label
+      obj.label.setPosition(obj.sprite.x, obj.sprite.y - 30);
+    });
+
+    // Throttled Sync
+    if (time > this.lastSyncTime + this.syncInterval) {
+      this.agents.forEach((obj, id) => {
+        useSimulationStore.getState().updateAgent(id, {
+          location: { x: Math.round(obj.sprite.x), y: Math.round(obj.sprite.y) }
+        });
+      });
+      this.lastSyncTime = time;
+    }
+  }
+
+  private handleAgentMovement(id: string, sprite: Phaser.GameObjects.Sprite, data: any) {
+    if (data.isThinking) return;
+
+    // Check for new target
+    let pathObj = this.agentPaths.get(id);
+    if (data.targetLocation) {
+       // Simple Target Resolution
+       let targetX = 0, targetY = 0;
+       if (data.targetLocation.dept) {
+          const centroid = this.departmentCentroids[data.targetLocation.dept];
+          targetX = centroid.x + 16;
+          targetY = centroid.y + 16;
+       }
+
+       if (!pathObj || (pathObj.path.length > 0 && (pathObj.path[pathObj.path.length-1].x !== targetX || pathObj.path[pathObj.path.length-1].y !== targetY))) {
+         const nodes = this.navManager.findPath({x: sprite.x, y: sprite.y}, {x: targetX, y: targetY});
+         if (nodes.length > 0) {
+            this.agentPaths.set(id, { path: nodes.map(n => ({x: n.x * 32 + 16, y: n.y * 32 + 16})), index: 0 });
+            pathObj = this.agentPaths.get(id);
+         }
+       }
     }
 
-    // Movement Logic: Only move if NOT thinking
-    if (!isThinking && this.pathIndex < this.currentPath.length) {
-      const target = this.currentPath[this.pathIndex];
-      const dx = target.x - this.testAgent.x;
-      const dy = target.y - this.testAgent.y;
+    if (pathObj && pathObj.index < pathObj.path.length) {
+      const target = pathObj.path[pathObj.index];
+      const dx = target.x - sprite.x;
+      const dy = target.y - sprite.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
 
       if (dist < 4) {
-        this.pathIndex++;
-        // If reached end, pick a new random department
-        if (this.pathIndex >= this.currentPath.length) {
-           const depts = [
-             { x: 10, y: 10 }, // Research
-             { x: 60, y: 10 }, // PM
-             { x: 10, y: 40 }, // Art
-             { x: 60, y: 40 }, // Programming
-             { x: 40, y: 24 }  // Center Junction
-           ];
-           const randomDept = depts[Math.floor(Math.random() * depts.length)];
-           this.startMoving({ x: this.testAgent.x, y: this.testAgent.y }, { x: randomDept.x * 32, y: randomDept.y * 32 });
-        }
+        pathObj.index++;
       } else {
         const angle = Math.atan2(dy, dx);
-        this.testAgent.x += Math.cos(angle) * this.moveSpeed;
-        this.testAgent.y += Math.sin(angle) * this.moveSpeed;
+        sprite.x += Math.cos(angle) * 4;
+        sprite.y += Math.sin(angle) * 4;
       }
-    }
-
-    // Throttled Zustand Sync (10Hz)
-    if (time > this.lastSyncTime + this.syncInterval) {
-      useSimulationStore.getState().updateAgent('agent_01', {
-        location: { x: Math.round(this.testAgent.x), y: Math.round(this.testAgent.y) }
-      });
-      this.lastSyncTime = time;
     }
   }
 
@@ -205,68 +160,51 @@ export class MainScene extends Phaser.Scene {
     this.taskGraphics.clear();
     this.bottleneckGraphics.clear();
     const projects = useSimulationStore.getState().projects;
-    const deptCounts: Record<string, number> = {};
-
+    const storeAgents = useSimulationStore.getState().agents;
+    
     projects.forEach(project => {
       project.tasks.forEach((task, index) => {
-        if (task.status === 'Complete') return; // Don't render finished work for now
-        
+        // If task is being carried, render it on the agent
+        const carrier = Object.values(storeAgents).find(a => a.carryingTaskId === task.id);
+        if (carrier) {
+          const agentObj = this.agents.get(carrier.id);
+          if (agentObj) {
+            this.drawTaskBox(agentObj.sprite.x, agentObj.sprite.y - 10, task.status);
+            return;
+          }
+        }
+
+        if (task.status === 'Complete') return;
+
         const centroid = this.departmentCentroids[task.dept];
         if (!centroid) return;
-
-        // Track bottleneck logic
-        deptCounts[task.dept] = (deptCounts[task.dept] || 0) + 1;
-
-        // Spread tasks out in the department inbox
-        const x = centroid.x + (index % 3) * 40;
-        const y = centroid.y + Math.floor(index / 3) * 40;
-
-        if (task.status === 'Stubbed') {
-          // Phase 4: Render Stub (Hollow Dashed Box)
-          this.drawDashedRect(x, y, 24, 24, 0xffff00);
-        } else {
-          // Standard Task Box (Solid)
-          this.taskGraphics.fillStyle(0xffffff, 1);
-          this.taskGraphics.fillRect(x - 12, y - 12, 24, 24);
-          this.taskGraphics.lineStyle(2, 0x000000, 1);
-          this.taskGraphics.strokeRect(x - 12, y - 12, 24, 24);
-        }
+        const x = centroid.x + (index % 3) * 40 + 16;
+        const y = centroid.y + Math.floor(index / 3) * 40 + 16;
+        this.drawTaskBox(x, y, task.status);
       });
     });
+  }
 
-    // Render Bottleneck Warnings (if more than 2 pending tasks in a dept)
-    const bottleneckDepts: string[] = [];
-    Object.entries(deptCounts).forEach(([dept, count]) => {
-      if (count >= 2) {
-        bottleneckDepts.push(dept);
-        const centroid = this.departmentCentroids[dept];
-        // Red glow under department
-        this.bottleneckGraphics.fillStyle(0xff0000, 0.3);
-        this.bottleneckGraphics.fillCircle(centroid.x + 40, centroid.y + 40, 80);
-      }
-    });
-    
-    // Sync bottlenecks to store if changed
-    const currentBottlenecks = useSimulationStore.getState().bottlenecks;
-    if (JSON.stringify(currentBottlenecks) !== JSON.stringify(bottleneckDepts)) {
-      useSimulationStore.getState().setBottlenecks(bottleneckDepts);
+  private drawTaskBox(x: number, y: number, status: string) {
+    if (status === 'Stubbed') {
+      this.drawDashedRect(x, y, 20, 20, 0xffff00);
+    } else {
+      this.taskGraphics.fillStyle(0xffffff, 1);
+      this.taskGraphics.fillRect(x - 10, y - 10, 20, 20);
+      this.taskGraphics.lineStyle(1, 0x000000, 1);
+      this.taskGraphics.strokeRect(x - 10, y - 10, 20, 20);
     }
   }
 
   private drawDashedRect(x: number, y: number, w: number, h: number, color: number) {
     const dashLength = 4;
     this.taskGraphics.lineStyle(2, color, 1);
-    
-    // Simple dashed approximation for Phase 4
     const left = x - w/2;
     const top = y - h/2;
-    
-    // Top & Bottom
     for (let i = 0; i < w; i += dashLength * 2) {
       this.taskGraphics.lineBetween(left + i, top, left + i + dashLength, top);
       this.taskGraphics.lineBetween(left + i, top + h, left + i + dashLength, top + h);
     }
-    // Left & Right
     for (let i = 0; i < h; i += dashLength * 2) {
       this.taskGraphics.lineBetween(left, top + i, left, top + i + dashLength);
       this.taskGraphics.lineBetween(left + w, top + i, left + w, top + i + dashLength);

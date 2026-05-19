@@ -3,10 +3,12 @@ import { create } from 'zustand';
 interface AgentState {
   id: string;
   name: string;
-  role: string;
+  role: 'PM' | 'Worker' | 'Courier';
   status: string;
-  location: { x: number; y: number };
-  isThinking: boolean; // New: visual state
+  location: { x: number, y: number };
+  isThinking: boolean;
+  carryingTaskId?: string; // New: Task ID being physically moved
+  targetLocation?: { x: number, y: number }; // New: Goal coordinate
 }
 
 interface Project {

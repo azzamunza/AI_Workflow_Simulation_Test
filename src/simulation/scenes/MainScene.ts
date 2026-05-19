@@ -50,11 +50,6 @@ export class MainScene extends Phaser.Scene {
 
     ProjectManager.getInstance().initializeAgents();
     this.syncAgentsWithStore();
-
-    // Trigger initial project simulation
-    setTimeout(() => {
-       useSimulationStore.getState().updateAgent('client', { status: 'At Desk', targetLocation: undefined });
-    }, 5000);
   }
 
   private syncAgentsWithStore() {
@@ -81,6 +76,9 @@ export class MainScene extends Phaser.Scene {
   update(time: number, _delta: number) {
     this.syncAgentsWithStore();
     this.renderTasks();
+
+    // Orchestrator Step
+    ProjectManager.getInstance().step();
 
     const storeAgents = useSimulationStore.getState().agents;
     this.agents.forEach((obj, id) => {

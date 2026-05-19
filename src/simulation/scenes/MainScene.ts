@@ -1,10 +1,12 @@
 import Phaser from 'phaser';
 import { useSimulationStore } from '../../store';
+import { NavigationManager } from '../Navigation';
 
 export class MainScene extends Phaser.Scene {
   private lastSyncTime: number = 0;
   private syncInterval: number = 100; // 100ms throttle
-  private testAgent!: Phaser.GameObjects.Rectangle;
+  private testAgent!: Phaser.GameObjects.Sprite;
+  private navManager!: NavigationManager;
 
   constructor() {
     super('MainScene');
@@ -22,8 +24,12 @@ export class MainScene extends Phaser.Scene {
     const tileset = map.addTilesetImage('office-tiles', 'tiles');
     
     if (tileset) {
-      map.createLayer('Floor', tileset, 0, 0);
+      const floorLayer = map.createLayer('Floor', tileset, 0, 0);
       map.createLayer('Furniture', tileset, 0, 0);
+
+      // Initialize Navigation
+      const floorData = floorLayer?.layer.data.flat().map(tile => tile.index) || [];
+      this.navManager = new NavigationManager(floorData, map.width, map.height);
     }
 
     // Test Agent using Atlas frame 10 (Agent color)

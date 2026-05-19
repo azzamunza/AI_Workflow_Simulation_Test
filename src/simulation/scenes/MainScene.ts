@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { useSimulationStore, Task, Project, Blade } from '../../store';
+import { useSimulationStore } from '../../store';
+import type { Task, Project, Blade } from '../../store';
 import { NavigationManager } from '../Navigation';
 import { ProjectManager } from '../Orchestrator';
 
@@ -162,30 +163,32 @@ export class MainScene extends Phaser.Scene {
         }
 
         // 2. Check for Blades (pieces of the box)
-        task.blades.forEach((blade: Blade) => {
-           const bladeCarrier = Object.values(storeAgents).find(a => a.carryingBladeId === blade.id);
-           if (bladeCarrier) {
-              const agentObj = this.agents.get(bladeCarrier.id);
-              if (agentObj) {
-                 this.taskGraphics.fillStyle(0x00ccff, 1);
-                 this.taskGraphics.fillRect(agentObj.sprite.x - 10, agentObj.sprite.y - 5, 20, 5);
-                 return;
-              }
-           }
-           
-           if (blade.status === 'Review') {
-              const reviewSpot = ProjectManager.getInstance().getDeptReviewLocation(task.dept);
-              this.taskGraphics.fillStyle(0x00ccff, 0.7);
-              this.taskGraphics.fillRect(reviewSpot.x - 10, reviewSpot.y - 5, 20, 5);
-           }
-        });
+        if (task.blades) {
+          task.blades.forEach((blade: Blade) => {
+            const bladeCarrier = Object.values(storeAgents).find(a => a.carryingBladeId === blade.id);
+            if (bladeCarrier) {
+                const agentObj = this.agents.get(bladeCarrier.id);
+                if (agentObj) {
+                  this.taskGraphics.fillStyle(0x00ccff, 1);
+                  this.taskGraphics.fillRect(agentObj.sprite.x - 10, agentObj.sprite.y - 5, 20, 5);
+                  return;
+                }
+            }
+            
+            if (blade.status === 'Review') {
+                const reviewSpot = ProjectManager.getInstance().getDeptReviewLocation(task.dept);
+                this.taskGraphics.fillStyle(0x00ccff, 0.7);
+                this.taskGraphics.fillRect(reviewSpot.x - 10, reviewSpot.y - 5, 20, 5);
+            }
+          });
+        }
 
         if (task.status === 'Complete') return;
 
         // 3. Render at fixed locations if not carried
         const centroid = this.departmentCentroids[task.dept];
         if (centroid) {
-           if (task.status === 'In-Dept') {
+           if (task.status === 'In-Dept' && task.blades) {
               // Draw the remaining box size based on pending blades
               const pendingBlades = task.blades.filter(b => b.status === 'Pending').length;
               if (pendingBlades > 0) {

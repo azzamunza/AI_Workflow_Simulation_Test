@@ -1,4 +1,5 @@
-import { useSimulationStore, Task, Blade } from '../store';
+import { useSimulationStore } from '../store';
+import type { Task, Blade } from '../store';
 
 /**
  * AI Orchestration Layer
@@ -6,7 +7,6 @@ import { useSimulationStore, Task, Blade } from '../store';
  */
 export class ProjectManager {
   private static instance: ProjectManager;
-  private isThinking: boolean = false;
 
   public static getInstance(): ProjectManager {
     if (!ProjectManager.instance) {
@@ -67,7 +67,6 @@ export class ProjectManager {
     const store = useSimulationStore.getState();
     const agents = store.agents;
     const client = agents['client'];
-    const receptionist = agents['receptionist'];
 
     // 1. Client arrives at Reception
     if (client.status === 'Entering' && !client.targetLocation) {
@@ -98,7 +97,7 @@ export class ProjectManager {
           const project = store.projects[0];
           const taskInDept = project?.tasks.find(t => t.dept === sa.dept && t.status === 'In-Dept');
           
-          if (taskInDept && taskInDept.blades.length > 0) {
+          if (taskInDept && taskInDept.blades && taskInDept.blades.length > 0) {
              const pendingBlade = taskInDept.blades.find(b => b.status === 'Pending');
              if (pendingBlade) {
                 console.log(`[Simulation] ${sa.name} taking blade ${pendingBlade.id}`);
@@ -145,33 +144,37 @@ export class ProjectManager {
     managers.forEach(m => {
        if (m.status === 'Idle') {
           const project = store.projects[0];
-          const taskInDept = project?.tasks.find(t => t.dept === m.dept);
-          const reviewBlade = taskInDept?.blades.find(b => b.status === 'Review');
+          const taskInDept = project?.tasks.find(t => t.dept === m.dept && t.status === 'In-Dept');
           
-          if (reviewBlade) {
-             const reviewSpot = this.getDeptReviewLocation(m.dept!);
-             store.updateAgent(m.id, {
-                status: 'Reviewing Blade',
-                targetLocation: reviewSpot,
-                carryingBladeId: reviewBlade.id
-             });
+          if (taskInDept && taskInDept.blades) {
+             const reviewBlade = taskInDept.blades.find(b => b.status === 'Review');
              
-             setTimeout(() => {
-                const inbox = this.getDeptInboxLocation(m.dept!);
+             if (reviewBlade) {
+                const reviewSpot = this.getDeptReviewLocation(m.dept!);
                 store.updateAgent(m.id, {
-                   status: 'Idle',
-                   targetLocation: inbox,
-                   carryingBladeId: undefined
+                   status: 'Reviewing Blade',
+                   targetLocation: reviewSpot,
+                   carryingBladeId: reviewBlade.id
                 });
-                this.updateBladeStatus(project.id, taskInDept.id, reviewBlade.id, 'Complete');
                 
-                // If all blades complete, task is complete
-                const allDone = taskInDept.blades.every(b => b.id === reviewBlade.id ? true : b.status === 'Complete');
-                if (allDone) {
-                   store.updateTask(project.id, taskInDept.id, 'Complete');
-                   store.recordCompletion();
-                }
-             }, 3000);
+                setTimeout(() => {
+                   const inbox = this.getDeptInboxLocation(m.dept!);
+                   store.updateAgent(m.id, {
+                      status: 'Idle',
+                      targetLocation: inbox,
+                      carryingBladeId: undefined
+                   });
+                   this.updateBladeStatus(project.id, taskInDept.id, reviewBlade.id, 'Complete');
+                   
+                   // If all blades complete, task is complete
+                   const currentProject = store.projects.find(p => p.id === project.id);
+                   const currentTask = currentProject?.tasks.find(t => t.id === taskInDept.id);
+                   if (currentTask && currentTask.blades.every(b => b.status === 'Complete')) {
+                      store.updateTask(project.id, taskInDept.id, 'Complete');
+                      store.recordCompletion();
+                   }
+                }, 3000);
+             }
           }
        }
     });
@@ -291,13 +294,5 @@ export class ProjectManager {
       "Planning": { x: 46 * 32 + 16, y: 36 * 32 + 16 }
     };
     return centroids[dept] || { x: 0, y: 0 };
-  }
-
-  private setThinking(id: string, value: boolean) {
-    this.isThinking = value;
-    useSimulationStore.getState().updateAgent(id, { 
-      isThinking: value,
-      status: value ? 'Thinking...' : 'Idle'
-    });
   }
 }

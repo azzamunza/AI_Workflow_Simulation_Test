@@ -1,5 +1,6 @@
 import React from 'react';
-import { useSimulationStore, Task } from '../store';
+import { useSimulationStore } from '../store';
+import type { Task } from '../store';
 
 export const HUD: React.FC = () => {
   const agents = useSimulationStore((state) => state.agents);

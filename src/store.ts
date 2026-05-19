@@ -24,7 +24,7 @@ export interface Task {
   id: string;
   name: string;
   dept: string;
-  status: 'Reception' | 'Meeting' | 'In-Dept' | 'Complete';
+  status: 'Reception' | 'Meeting' | 'In-Dept' | 'Complete' | 'Stubbed';
   blades: Blade[];
 }
 

@@ -20,7 +20,8 @@ interface Task {
   id: string;
   name: string;
   dept: string;
-  status: 'Pending' | 'In-Progress' | 'Complete';
+  status: 'Pending' | 'In-Progress' | 'Complete' | 'Stubbed'; // Added 'Stubbed'
+  isStub?: boolean; // New: Identifies placeholder contracts
 }
 
 interface SimulationState {

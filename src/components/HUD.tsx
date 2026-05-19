@@ -43,7 +43,10 @@ export const HUD: React.FC = () => {
               <strong>📁 {project.name}</strong>
               <div style={{ marginLeft: '15px', fontSize: '12px' }}>
                 {project.tasks.map(task => (
-                  <div key={task.id} style={{ opacity: 0.8 }}>
+                  <div key={task.id} style={{ 
+                    opacity: 0.8,
+                    color: task.status === 'Stubbed' ? '#ffff00' : 'white'
+                  }}>
                     - [{task.status}] {task.name} ({task.dept})
                   </div>
                 ))}

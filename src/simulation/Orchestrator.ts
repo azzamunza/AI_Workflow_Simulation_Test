@@ -30,14 +30,16 @@ export class ProjectManager {
     const delay = 2000 + Math.random() * 2000;
     await new Promise(resolve => setTimeout(resolve, delay));
 
-    // 3. Mock JSON Schema Validation
+    // 3. Mock JSON Schema Validation (Phase 4: Circular Dependency Scenario)
     const mockLLMOutput = {
       action: "create_project",
       projectName: projectName,
       tasks: [
-        { id: "t1", name: "Create Concept Art", dept: "Art" },
-        { id: "t2", name: "Develop Prototype", dept: "Programming" },
-        { id: "t3", name: "QA Testing", dept: "QA" }
+        { id: "t1", name: "Level Design", dept: "Art" },
+        { id: "t2", name: "Movement Script", dept: "Programming" },
+        // Circular Dependency Pair
+        { id: "s1", name: "Art Contract", dept: "Programming", isStub: true },
+        { id: "s2", name: "Code Contract", dept: "Art", isStub: true }
       ]
     };
 
@@ -48,7 +50,10 @@ export class ProjectManager {
       id: `p-${Date.now()}`,
       name: mockLLMOutput.projectName,
       status: 'Active',
-      tasks: mockLLMOutput.tasks.map(t => ({ ...t, status: 'Pending' }))
+      tasks: mockLLMOutput.tasks.map(t => ({ 
+        ...t, 
+        status: t.isStub ? 'Stubbed' : 'Pending' 
+      }))
     });
 
     // 5. Exit "Thinking" State

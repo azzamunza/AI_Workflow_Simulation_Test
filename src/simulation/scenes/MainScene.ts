@@ -9,6 +9,16 @@ export class MainScene extends Phaser.Scene {
   private testAgent!: Phaser.GameObjects.Sprite;
   private thinkingIndicator!: Phaser.GameObjects.Text;
   private navManager!: NavigationManager;
+  private taskGraphics!: Phaser.GameObjects.Graphics;
+  private departmentCentroids: Record<string, { x: number, y: number }> = {
+    "Research": { x: 12 * 32, y: 10 * 32 },
+    "PM": { x: 62 * 32, y: 10 * 32 },
+    "Art": { x: 12 * 32, y: 40 * 32 },
+    "Programming": { x: 62 * 32, y: 40 * 32 },
+    "AI Ops": { x: 30 * 32, y: 10 * 32 },
+    "QA": { x: 30 * 32, y: 40 * 32 },
+    "Planning": { x: 50 * 32, y: 40 * 32 }
+  };
   private currentPath: { x: number, y: number }[] = [];
   private pathIndex: number = 0;
   private moveSpeed: number = 4;
@@ -72,6 +82,10 @@ export class MainScene extends Phaser.Scene {
       this.debugGraphics.lineStyle(2, 0xff0000, 1);
       this.debugGraphics.setDepth(100); // Ensure it's on top
 
+      // Task Graphics
+      this.taskGraphics = this.add.graphics();
+      this.taskGraphics.setDepth(20);
+
       // Test Agent using Atlas frame 10 (Agent color)
       const agentSprite = this.add.sprite(416, 736, 'atlas', 10);
       this.testAgent = agentSprite;
@@ -129,6 +143,9 @@ export class MainScene extends Phaser.Scene {
   }
 
   update(time: number, _delta: number) {
+    // Phase 4: Render Task Boxes & Stubs
+    this.renderTasks();
+
     // Phase 3: Sync Visual "Thinking" State
     const agentData = useSimulationStore.getState().agents['agent_01'];
     const isThinking = agentData?.isThinking || false;
@@ -176,6 +193,53 @@ export class MainScene extends Phaser.Scene {
         location: { x: Math.round(this.testAgent.x), y: Math.round(this.testAgent.y) }
       });
       this.lastSyncTime = time;
+    }
+  }
+
+  private renderTasks() {
+    this.taskGraphics.clear();
+    const projects = useSimulationStore.getState().projects;
+
+    projects.forEach(project => {
+      project.tasks.forEach((task, index) => {
+        const centroid = this.departmentCentroids[task.dept];
+        if (!centroid) return;
+
+        // Spread tasks out in the department inbox
+        const x = centroid.x + (index % 3) * 40;
+        const y = centroid.y + Math.floor(index / 3) * 40;
+
+        if (task.status === 'Stubbed') {
+          // Phase 4: Render Stub (Hollow Dashed Box)
+          this.drawDashedRect(x, y, 24, 24, 0xffff00);
+        } else {
+          // Standard Task Box (Solid)
+          this.taskGraphics.fillStyle(0xffffff, 1);
+          this.taskGraphics.fillRect(x - 12, y - 12, 24, 24);
+          this.taskGraphics.lineStyle(2, 0x000000, 1);
+          this.taskGraphics.strokeRect(x - 12, y - 12, 24, 24);
+        }
+      });
+    });
+  }
+
+  private drawDashedRect(x: number, y: number, w: number, h: number, color: number) {
+    const dashLength = 4;
+    this.taskGraphics.lineStyle(2, color, 1);
+    
+    // Simple dashed approximation for Phase 4
+    const left = x - w/2;
+    const top = y - h/2;
+    
+    // Top & Bottom
+    for (let i = 0; i < w; i += dashLength * 2) {
+      this.taskGraphics.lineBetween(left + i, top, left + i + dashLength, top);
+      this.taskGraphics.lineBetween(left + i, top + h, left + i + dashLength, top + h);
+    }
+    // Left & Right
+    for (let i = 0; i < h; i += dashLength * 2) {
+      this.taskGraphics.lineBetween(left, top + i, left, top + i + dashLength);
+      this.taskGraphics.lineBetween(left + w, top + i, left + w, top + i + dashLength);
     }
   }
 }

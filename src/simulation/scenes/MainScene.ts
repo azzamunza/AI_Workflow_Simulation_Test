@@ -13,12 +13,18 @@ export class MainScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('tiles', 'assets/atlas_global.png');
-    this.load.tilemapTiledJSON('map', 'assets/map_office.json');
-    this.load.spritesheet('atlas', 'assets/atlas_global.png', { frameWidth: 32, frameHeight: 32 });
+    console.log('Preloading assets...');
+    this.load.image('tiles', './assets/atlas_global.png');
+    this.load.tilemapTiledJSON('map', './assets/map_office.json');
+    this.load.spritesheet('atlas', './assets/atlas_global.png', { frameWidth: 32, frameHeight: 32 });
+
+    this.load.on('loaderror', (fileObj: any) => {
+      console.error('Error loading asset:', fileObj.key, fileObj.src);
+    });
   }
 
   create() {
+    console.log('Creating scene...');
     // Tilemap
     const map = this.make.tilemap({ key: 'map' });
     const tileset = map.addTilesetImage('office-tiles', 'tiles');
@@ -27,9 +33,18 @@ export class MainScene extends Phaser.Scene {
       const floorLayer = map.createLayer('Floor', tileset, 0, 0);
       map.createLayer('Furniture', tileset, 0, 0);
 
+      if (!floorLayer) {
+        console.error('Floor layer not found!');
+      } else {
+        console.log('Map layers created.');
+      }
+
       // Initialize Navigation
       const floorData = floorLayer?.layer.data.flat().map(tile => tile.index) || [];
       this.navManager = new NavigationManager(floorData, map.width, map.height);
+      console.log('Navigation initialized.');
+    } else {
+      console.error('Tileset not found!');
     }
 
     // Test Agent using Atlas frame 10 (Agent color)

@@ -101,6 +101,9 @@ export class MainScene extends Phaser.Scene {
 
       // Start movement test
       this.startMoving({ x: this.testAgent.x, y: this.testAgent.y }, { x: 10 * 32, y: 10 * 32 });
+    } else {
+      console.error('Failed to link tileset "office-tiles" to image "tiles". Check tileset name in JSON.');
+    }
   }
 
   private startMoving(start: { x: number, y: number }, end: { x: number, y: number }) {

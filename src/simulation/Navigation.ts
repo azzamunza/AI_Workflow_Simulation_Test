@@ -13,13 +13,13 @@ export class NavigationManager {
   }
 
   private bakeGraph(tileData: number[], width: number, height: number) {
-    // 1. Identify "Interest Points" (Intersections and Doorways)
-    // For this simple version, every walkable tile is a potential node
-    // but we only keep ones that are junctions or ends.
+    // Walkable GIDs: 1=Corridor, 2=Art, 3=Prog, 4=PM, 5=Res, 6=AI, 7=QA, 8=Plan
+    const walkableGids = [1, 2, 3, 4, 5, 6, 7, 8];
+
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const gid = tileData[y * width + x];
-        if (gid === 1) { // Corridor
+        if (walkableGids.includes(gid)) {
           const id = `${x},${y}`;
           this.nodes.set(id, { id, x, y, neighbors: [] });
         }
@@ -44,9 +44,48 @@ export class NavigationManager {
     }
   }
 
-  public findPath(_start: { x: number, y: number }, _end: { x: number, y: number }): NavNode[] {
-    // Simple BFS/A* on the baked graph
-    // For Phase 2, we return a simple linear path for now
-    return []; 
+  public findPath(start: { x: number, y: number }, end: { x: number, y: number }): NavNode[] {
+    const startX = Math.floor(start.x / 32);
+    const startY = Math.floor(start.y / 32);
+    const endX = Math.floor(end.x / 32);
+    const endY = Math.floor(end.y / 32);
+
+    const startId = `${startX},${startY}`;
+    const endId = `${endX},${endY}`;
+
+    if (!this.nodes.has(startId) || !this.nodes.has(endId)) {
+      // If start/end isn't on a corridor, find the nearest corridor node
+      return [];
+    }
+
+    // Simple BFS for pathfinding
+    const queue: string[] = [startId];
+    const visited = new Map<string, string | null>();
+    visited.set(startId, null);
+
+    while (queue.length > 0) {
+      const currentId = queue.shift()!;
+      if (currentId === endId) break;
+
+      const node = this.nodes.get(currentId)!;
+      for (const neighborId of node.neighbors) {
+        if (!visited.has(neighborId)) {
+          visited.set(neighborId, currentId);
+          queue.push(neighborId);
+        }
+      }
+    }
+
+    // Reconstruct path
+    const path: NavNode[] = [];
+    let current: string | null = endId;
+    if (!visited.has(endId)) return [];
+
+    while (current !== null) {
+      path.unshift(this.nodes.get(current)!);
+      current = visited.get(current)!;
+    }
+
+    return path;
   }
 }

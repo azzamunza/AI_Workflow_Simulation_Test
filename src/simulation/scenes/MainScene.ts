@@ -6,7 +6,7 @@ export class MainScene extends Phaser.Scene {
   private lastSyncTime: number = 0;
   private syncInterval: number = 100; // 100ms throttle
   private testAgent!: Phaser.GameObjects.Sprite;
-  private navManager!: NavigationManager;
+  protected navManager!: NavigationManager;
 
   constructor() {
     super('MainScene');
@@ -33,10 +33,8 @@ export class MainScene extends Phaser.Scene {
     }
 
     // Test Agent using Atlas frame 10 (Agent color)
-    this.testAgent = this.add.rectangle(400, 720, 24, 24, 0xffffff); // Placeholder till I switch to Sprite
-    // Switch to Sprite to use Atlas
     const agentSprite = this.add.sprite(400, 720, 'atlas', 10);
-    this.testAgent = agentSprite as any; 
+    this.testAgent = agentSprite; 
 
     this.add.text(400, 690, 'Agent 01', { fontSize: '12px', color: '#fff' }).setOrigin(0.5);
 

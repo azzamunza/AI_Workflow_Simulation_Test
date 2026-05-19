@@ -44,7 +44,7 @@ export class NavigationManager {
     }
   }
 
-  public findPath(start: { x: number, y: number }, end: { x: number, y: number }): NavNode[] {
+  public findPath(_start: { x: number, y: number }, _end: { x: number, y: number }): NavNode[] {
     // Simple BFS/A* on the baked graph
     // For Phase 2, we return a simple linear path for now
     return []; 

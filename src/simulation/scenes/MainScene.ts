@@ -7,7 +7,7 @@ import { ProjectManager } from '../Orchestrator';
 export class MainScene extends Phaser.Scene {
   private lastSyncTime: number = 0;
   private syncInterval: number = 100;
-  private agents: Map<string, { sprite: Phaser.GameObjects.Sprite, label: Phaser.GameObjects.Text, thinking: Phaser.GameObjects.Text }> = new Map();
+  private agents: Map<string, { sprite: Phaser.GameObjects.Arc | Phaser.GameObjects.Triangle, label: Phaser.GameObjects.Text, thinking: Phaser.GameObjects.Text }> = new Map();
   private navManager!: NavigationManager;
   private taskGraphics!: Phaser.GameObjects.Graphics;
   protected debugGraphics!: Phaser.GameObjects.Graphics;
@@ -74,17 +74,39 @@ export class MainScene extends Phaser.Scene {
     const storeAgents = useSimulationStore.getState().agents;
     Object.values(storeAgents).forEach(agent => {
       if (!this.agents.has(agent.id)) {
-        const sprite = this.add.sprite(agent.location.x, agent.location.y, 'atlas', 10).setDepth(10);
+        let sprite: Phaser.GameObjects.Arc | Phaser.GameObjects.Triangle;
+        let color = 0xffffff;
+        let size = 32;
+
+        if (agent.id.startsWith('A')) color = 0x264653;
+        else if (agent.id.startsWith('B')) color = 0x3a86ff;
+        else if (agent.id.startsWith('C')) color = 0x06d6a0;
+        else if (agent.id.startsWith('D')) color = 0xef476f;
+        else if (agent.id.startsWith('E')) color = 0xb5e6a2;
+        else if (agent.id.startsWith('F')) color = 0x3c7d22;
+        else if (agent.id.startsWith('G')) color = 0x118ab2;
+        else if (agent.id.startsWith('H')) color = 0x275317;
+        else if (agent.id.startsWith('I')) color = 0x2a9d8f;
+        else if (agent.id.startsWith('J')) color = 0x8338ec;
+        else if (agent.id.startsWith('K')) color = 0x8d99ae;
+
+        if (agent.role === 'Client') {
+          sprite = this.add.triangle(agent.location.x, agent.location.y, 0, 16, 16, -16, 32, 16, 0xffffff).setDepth(10);
+        } else {
+          if (agent.role === 'Manager') size = 32 * 0.8;
+          else if (agent.role === 'Sub-Agent') size = 32 * 0.65;
+          // Note: "Company Manager" isn't a specific role string in store yet, 
+          // but we can assume 'Manager' in 'Executive' or just check size 32 for specific IDs if needed.
+          // For now, if role is just 'Agent' (Head Office) make it full size.
+          if (agent.role === 'Agent') size = 32;
+
+          sprite = this.add.circle(agent.location.x, agent.location.y, size / 2, color).setDepth(10);
+          (sprite as Phaser.GameObjects.Arc).setStrokeStyle(2, 0xffffff);
+        }
+
         const label = this.add.text(agent.location.x, agent.location.y - 30, agent.name, { fontSize: '12px', color: '#fff' }).setOrigin(0.5).setDepth(11);
         const thinking = this.add.text(agent.location.x, agent.location.y - 40, '...', { fontSize: '20px', color: '#ffff00', fontStyle: 'bold' }).setOrigin(0.5).setAlpha(0).setDepth(12);
         
-        if ((agent.role === 'Manager' || agent.role === 'Sub-Agent') && agent.location.x === 0) {
-           const pos = this.departmentCentroids[agent.dept || ""];
-           if (pos) {
-             sprite.setPosition(pos.x + 64, pos.y + 64);
-           }
-        }
-
         this.agents.set(agent.id, { sprite, label, thinking });
       }
     });
@@ -124,7 +146,7 @@ export class MainScene extends Phaser.Scene {
     }
   }
 
-  private handleAgentMovement(id: string, sprite: Phaser.GameObjects.Sprite, data: any) {
+  private handleAgentMovement(id: string, sprite: Phaser.GameObjects.Arc | Phaser.GameObjects.Triangle, data: any) {
     if (data.isThinking) return;
 
     // Agent Avoidance Force
@@ -156,14 +178,18 @@ export class MainScene extends Phaser.Scene {
           }
         } else {
           const angle = Math.atan2(dy, dx);
-          sprite.x += Math.cos(angle) * 4;
-          sprite.y += Math.sin(angle) * 4;
+          let speed = 4;
+          if (data.role === 'Manager') speed = 4 * 0.8;
+          else if (data.role === 'Agent') speed = 4 * 0.65; // Company Manager
+
+          sprite.x += Math.cos(angle) * speed;
+          sprite.y += Math.sin(angle) * speed;
         }
       }
     }
   }
 
-  private applySeparation(id: string, sprite: Phaser.GameObjects.Sprite) {
+  private applySeparation(id: string, sprite: Phaser.GameObjects.Arc | Phaser.GameObjects.Triangle) {
     const separationDist = 32;
     this.agents.forEach((other, otherId) => {
       if (id === otherId) return;

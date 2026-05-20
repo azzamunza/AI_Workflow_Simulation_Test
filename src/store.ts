@@ -25,7 +25,7 @@ export interface Project {
 interface AgentState {
   id: string;
   name: string;
-  role: 'Receptionist' | 'Manager' | 'Sub-Agent' | 'Client' | 'Courier';
+  role: 'Receptionist' | 'Manager' | 'Sub-Agent' | 'Client' | 'Courier' | 'Agent';
   dept?: string;
   status: string;
   location: { x: number, y: number };

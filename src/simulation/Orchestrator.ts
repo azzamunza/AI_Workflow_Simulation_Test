@@ -1,4 +1,5 @@
 import { useSimulationStore, type Task, type Blade } from '../store';
+import { INITIAL_DATA } from './data';
 
 /**
  * AI Orchestration Layer
@@ -16,47 +17,37 @@ export class ProjectManager {
 
   public initializeAgents() {
     const store = useSimulationStore.getState();
-    
-    // 1. Receptionist (at desk)
-    store.updateAgent('receptionist', {
-      id: 'receptionist', name: 'Receptionist', role: 'Receptionist',
-      status: 'Ready', location: { x: 3.5 * 32 + 16, y: 11.5 * 32 + 16 }, isThinking: false
-    });
+    const { agents, metadata } = INITIAL_DATA;
 
-    // 2. Client (starts outside)
-    store.updateAgent('client', {
-      id: 'client', name: 'Client', role: 'Client',
-      status: 'Entering', location: { x: 0 * 32 + 16, y: 7 * 32 + 16 }, isThinking: false,
-      targetLocation: { x: 2 * 32 + 16, y: 11 * 32 + 16 },
-      carryingTaskId: 'initial-client-box'
-    });
-
-    // 3. Dept Managers & Sub-Agents
-    const deptInfo = {
-      "Executive Management": ["Operations & Workflow Coordinator", "Strategic Planning & Review Specialist"],
-      "Software & Systems Development": ["Full Stack Systems Developer", "Infrastructure & Automation Engineer"],
-      "Data Analysis & Decision Systems": ["Data & Forecasting Analyst", "Machine Learning & Optimisation Specialist"],
-      "Security, Compliance & Risk": ["Cybersecurity & Threat Analyst", "Compliance & Privacy Officer"],
-      "Automation & Tool Operations": ["Desktop & Browser Automation Operator", "Workflow & Script Execution Specialist"],
-      "Research & Intelligence": ["Research & Web Intelligence Analyst", "Scientific & Technical Research Specialist"],
-      "3D Visualisation & Simulation": ["3D Modelling & Environment Artist", "Rendering & Materials Specialist"],
-      "Memory, Knowledge & Training": ["Knowledge Base & Archive Specialist", "Semantic Indexing & Context Coordinator"]
-    };
-
-    Object.entries(deptInfo).forEach(([dept, roles]) => {
-      // Manager
-      store.updateAgent(`manager-${dept}`, {
-        id: `manager-${dept}`, name: `${dept} Manager`, role: 'Manager', dept,
-        status: 'Idle', location: { x: 0, y: 0 }, isThinking: false
-      });
-      // Sub-Agents
-      roles.forEach((role, i) => {
-        store.updateAgent(`sub-${dept}-${i+1}`, {
-          id: `sub-${dept}-${i+1}`, name: role, role: 'Sub-Agent', dept,
-          status: 'Waiting', location: { x: 0, y: 0 }, isThinking: false
-        });
+    // 1. Initialize Agents from Excel positions
+    agents.forEach((a: any) => {
+      const agentMeta = (metadata.agents as any)[a.id];
+      store.updateAgent(a.id, {
+        id: a.id,
+        name: agentMeta?.role || a.id,
+        role: (agentMeta?.role?.includes('Manager') ? 'Manager' : 'Sub-Agent') as any,
+        status: 'Idle',
+        location: { x: a.x * 32 + 16, y: a.y * 32 + 16 },
+        isThinking: false
       });
     });
+
+    // Special cases (Receptionist/Client if not in Excel yet or as fallback)
+    if (!store.agents['receptionist']) {
+      store.updateAgent('receptionist', {
+        id: 'receptionist', name: 'Receptionist', role: 'Receptionist',
+        status: 'Ready', location: { x: 3.5 * 32 + 16, y: 11.5 * 32 + 16 }, isThinking: false
+      });
+    }
+
+    if (!store.agents['client']) {
+      store.updateAgent('client', {
+        id: 'client', name: 'Client', role: 'Client',
+        status: 'Entering', location: { x: 0 * 32 + 16, y: 7 * 32 + 16 }, isThinking: false,
+        targetLocation: { x: 2 * 32 + 16, y: 11 * 32 + 16 },
+        carryingTaskId: 'initial-client-box'
+      });
+    }
 
     // Initial Task
     store.addProject({
@@ -64,7 +55,7 @@ export class ProjectManager {
       name: 'Client Project',
       status: 'Active',
       tasks: [
-        { id: 'initial-client-box', name: 'Original Request', dept: 'Reception', status: 'Reception', blades: [] }
+        { id: 'initial-client-box', name: 'Original Request', dept: 'Executive Management', status: 'Reception', blades: [] }
       ]
     });
   }
@@ -193,8 +184,7 @@ export class ProjectManager {
   }
 
   public getDeptReviewLocation(dept: string): { x: number, y: number } {
-     const centroid = this.getDeptInboxLocation(dept);
-     return { x: centroid.x, y: centroid.y + 32 }; 
+     return this.getDeptInboxLocation(dept);
   }
 
   private updateBladeStatus(projId: string, taskId: string, bladeId: string, status: Blade['status']) {
@@ -212,22 +202,27 @@ export class ProjectManager {
   }
 
   private getSubAgentDeskLocation(id: string): { x: number, y: number } {
-     const parts = id.split('-');
-     const dept = parts[1];
-     const num = parseInt(parts[2]);
-     const centroids: Record<string, { x: number, y: number }> = {
-       "Research & Intelligence": { x: 57.3 * 32, y: 20.1 * 32 },
-       "Software & Systems Development": { x: 34.5 * 32, y: 18.9 * 32 },
-       "Executive Management": { x: 21.0 * 32, y: 18.9 * 32 },
-       "Data Analysis & Decision Systems": { x: 32.7 * 32, y: 4.6 * 32 },
-       "Security, Compliance & Risk": { x: 38.8 * 32, y: 4.6 * 32 },
-       "Automation & Tool Operations": { x: 57.3 * 32, y: 3.3 * 32 },
-       "3D Visualisation & Simulation": { x: 11.5 * 32, y: 4.6 * 32 },
-       "Memory, Knowledge & Training": { x: 20.5 * 32, y: 4.6 * 32 }
+     const agent = INITIAL_DATA.agents.find((a: any) => a.id === id);
+     return agent ? { x: agent.x * 32 + 16, y: agent.y * 32 + 16 } : { x: 0, y: 0 };
+  }
+
+  private getDeptInboxLocation(dept: string): { x: number, y: number } {
+     const prefixMap: Record<string, string> = {
+        "Executive Management": "A",
+        "Software & Systems Development": "B",
+        "Data Analysis & Decision Systems": "C",
+        "Security, Compliance & Risk": "D",
+        "Client Relations & Communications": "E",
+        "Creative Digital Media": "F",
+        "Automation & Tool Operations": "G",
+        "Multimodal Interaction & Human Interface": "H",
+        "Research & Intelligence": "I",
+        "3D Visualisation & Simulation": "J",
+        "Memory, Knowledge & Training": "K"
      };
-     const c = centroids[dept] || { x: 0, y: 0 };
-     if (num === 1) return { x: c.x, y: c.y + 32 };
-     return { x: c.x + 32, y: c.y + 32 };
+     const prefix = prefixMap[dept];
+     const manager = INITIAL_DATA.agents.find((a: any) => a.id === `${prefix}1`);
+     return manager ? { x: manager.x * 32 + 16, y: manager.y * 32 + 16 } : { x: 0, y: 0 };
   }
 
   private moveReceptionistToMeeting() {
@@ -268,7 +263,7 @@ export class ProjectManager {
        console.log("[Simulation] Meeting in progress. Duplicating box for managers.");
        // Duplicate logic
        const project = store.projects[0];
-    const depts = ["Software & Systems Development", "Research & Intelligence", "3D Visualisation & Simulation", "Memory, Knowledge & Training", "Executive Management"];
+    const depts = ["Software & Systems Development", "Research & Intelligence", "3D Visualisation & Simulation", "Memory, Knowledge & Training", "Executive Management", "Creative Digital Media", "Client Relations & Communications"];
        
        const newTasks: Task[] = depts.map(dept => ({
           id: `task-${dept}`,
@@ -299,19 +294,5 @@ export class ProjectManager {
     } else {
        setTimeout(() => this.waitForMeetingArrival(), 1000);
     }
-  }
-
-  private getDeptInboxLocation(dept: string): { x: number, y: number } {
-    const centroids: Record<string, { x: number, y: number }> = {
-      "Research & Intelligence": { x: 57.3 * 32, y: 20.1 * 32 },
-      "Software & Systems Development": { x: 34.5 * 32, y: 18.9 * 32 },
-      "Executive Management": { x: 21.0 * 32, y: 18.9 * 32 },
-      "Data Analysis & Decision Systems": { x: 32.7 * 32, y: 4.6 * 32 },
-      "Security, Compliance & Risk": { x: 38.8 * 32, y: 4.6 * 32 },
-      "Automation & Tool Operations": { x: 57.3 * 32, y: 3.3 * 32 },
-      "3D Visualisation & Simulation": { x: 11.5 * 32, y: 4.6 * 32 },
-      "Memory, Knowledge & Training": { x: 20.5 * 32, y: 4.6 * 32 }
-    };
-    return centroids[dept] || { x: 0, y: 0 };
   }
 }

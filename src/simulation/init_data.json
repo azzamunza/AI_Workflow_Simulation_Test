@@ -1,0 +1,1480 @@
+{
+  "agents": [
+    {
+      "id": "J1",
+      "x": 11,
+      "y": 10
+    },
+    {
+      "id": "J2",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "id": "J3",
+      "x": 13,
+      "y": 10
+    },
+    {
+      "id": "J4",
+      "x": 14,
+      "y": 10
+    },
+    {
+      "id": "J5",
+      "x": 15,
+      "y": 10
+    },
+    {
+      "id": "E1",
+      "x": 43,
+      "y": 10
+    },
+    {
+      "id": "E2",
+      "x": 44,
+      "y": 10
+    },
+    {
+      "id": "E3",
+      "x": 45,
+      "y": 10
+    },
+    {
+      "id": "E4",
+      "x": 46,
+      "y": 10
+    },
+    {
+      "id": "E5",
+      "x": 47,
+      "y": 10
+    },
+    {
+      "id": "I1",
+      "x": 52,
+      "y": 17
+    },
+    {
+      "id": "I2",
+      "x": 52,
+      "y": 18
+    },
+    {
+      "id": "A1",
+      "x": 26,
+      "y": 19
+    },
+    {
+      "id": "B1",
+      "x": 29,
+      "y": 19
+    },
+    {
+      "id": "F1",
+      "x": 49,
+      "y": 19
+    },
+    {
+      "id": "I3",
+      "x": 52,
+      "y": 19
+    },
+    {
+      "id": "A2",
+      "x": 26,
+      "y": 20
+    },
+    {
+      "id": "B2",
+      "x": 29,
+      "y": 20
+    },
+    {
+      "id": "F2",
+      "x": 49,
+      "y": 20
+    },
+    {
+      "id": "I4",
+      "x": 52,
+      "y": 20
+    },
+    {
+      "id": "A3",
+      "x": 26,
+      "y": 21
+    },
+    {
+      "id": "B3",
+      "x": 29,
+      "y": 21
+    },
+    {
+      "id": "F3",
+      "x": 49,
+      "y": 21
+    },
+    {
+      "id": "I5",
+      "x": 52,
+      "y": 21
+    },
+    {
+      "id": "A4",
+      "x": 26,
+      "y": 22
+    },
+    {
+      "id": "B4",
+      "x": 29,
+      "y": 22
+    },
+    {
+      "id": "F4",
+      "x": 49,
+      "y": 22
+    },
+    {
+      "id": "A5",
+      "x": 26,
+      "y": 23
+    },
+    {
+      "id": "B5",
+      "x": 29,
+      "y": 23
+    },
+    {
+      "id": "F5",
+      "x": 49,
+      "y": 23
+    }
+  ],
+  "objects": [
+    {
+      "id": "SAD",
+      "x": 55,
+      "y": 0,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 58,
+      "y": 0,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 61,
+      "y": 0,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 31,
+      "y": 1,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 32,
+      "y": 1,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 34,
+      "y": 1,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 35,
+      "y": 1,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 37,
+      "y": 1,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 38,
+      "y": 1,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 40,
+      "y": 1,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 41,
+      "y": 1,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 43,
+      "y": 1,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 44,
+      "y": 1,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 46,
+      "y": 1,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 47,
+      "y": 1,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 55,
+      "y": 1,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 58,
+      "y": 1,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 61,
+      "y": 1,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 8,
+      "y": 2,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 9,
+      "y": 2,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 10,
+      "y": 2,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 22,
+      "y": 2,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 24,
+      "y": 2,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 33,
+      "y": 3,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 35,
+      "y": 3,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 38,
+      "y": 3,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 41,
+      "y": 3,
+      "stack": ""
+    },
+    {
+      "id": "RCD",
+      "x": 4,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 11,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 12,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 14,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 15,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 17,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 18,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 20,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 21,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 33,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 35,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 38,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 41,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 43,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 44,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 46,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 47,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 59,
+      "y": 4,
+      "stack": ""
+    },
+    {
+      "id": "RCD",
+      "x": 4,
+      "y": 5,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 8,
+      "y": 5,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 24,
+      "y": 5,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 33,
+      "y": 5,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 35,
+      "y": 5,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 38,
+      "y": 5,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 41,
+      "y": 5,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 59,
+      "y": 5,
+      "stack": ""
+    },
+    {
+      "id": "RCD",
+      "x": 4,
+      "y": 6,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 8,
+      "y": 6,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 24,
+      "y": 6,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 35,
+      "y": 6,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 41,
+      "y": 6,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 43,
+      "y": 6,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 44,
+      "y": 6,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 45,
+      "y": 6,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 54,
+      "y": 6,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 55,
+      "y": 6,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 56,
+      "y": 6,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 57,
+      "y": 6,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 59,
+      "y": 6,
+      "stack": ""
+    },
+    {
+      "id": "RCD",
+      "x": 4,
+      "y": 7,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 8,
+      "y": 7,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 11,
+      "y": 7,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 12,
+      "y": 7,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 14,
+      "y": 7,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 15,
+      "y": 7,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 17,
+      "y": 7,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 18,
+      "y": 7,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 20,
+      "y": 7,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 21,
+      "y": 7,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 24,
+      "y": 7,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 41,
+      "y": 7,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 8,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 24,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 31,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 32,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 34,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 35,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 37,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 38,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 41,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 44,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 45,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 46,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 47,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 54,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 55,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 56,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 57,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 60,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 61,
+      "y": 8,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 59,
+      "y": 11,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 60,
+      "y": 11,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 61,
+      "y": 11,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 55,
+      "y": 14,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 58,
+      "y": 14,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 61,
+      "y": 14,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 21,
+      "y": 15,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 22,
+      "y": 15,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 23,
+      "y": 15,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 24,
+      "y": 15,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 31,
+      "y": 15,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 32,
+      "y": 15,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 33,
+      "y": 15,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 34,
+      "y": 15,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 44,
+      "y": 15,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 45,
+      "y": 15,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 46,
+      "y": 15,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 47,
+      "y": 15,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 55,
+      "y": 15,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 58,
+      "y": 15,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 61,
+      "y": 15,
+      "stack": ""
+    },
+    {
+      "id": "BRT",
+      "x": 10,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "BRT",
+      "x": 11,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "BRT",
+      "x": 12,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "BRT",
+      "x": 13,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "BRT",
+      "x": 14,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 18,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 19,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 37,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 38,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 40,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 41,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 54,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 55,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 56,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "DJD",
+      "x": 57,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 60,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 61,
+      "y": 17,
+      "stack": ""
+    },
+    {
+      "id": "CMD",
+      "x": 2,
+      "y": 18,
+      "stack": ""
+    },
+    {
+      "id": "CMD",
+      "x": 3,
+      "y": 18,
+      "stack": ""
+    },
+    {
+      "id": "CMD",
+      "x": 4,
+      "y": 18,
+      "stack": ""
+    },
+    {
+      "id": "CMD",
+      "x": 5,
+      "y": 18,
+      "stack": ""
+    },
+    {
+      "id": "BRT",
+      "x": 10,
+      "y": 18,
+      "stack": ""
+    },
+    {
+      "id": "BRT",
+      "x": 11,
+      "y": 18,
+      "stack": ""
+    },
+    {
+      "id": "BRT",
+      "x": 12,
+      "y": 18,
+      "stack": ""
+    },
+    {
+      "id": "BRT",
+      "x": 13,
+      "y": 18,
+      "stack": ""
+    },
+    {
+      "id": "BRT",
+      "x": 14,
+      "y": 18,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 59,
+      "y": 19,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 60,
+      "y": 19,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 61,
+      "y": 19,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 18,
+      "y": 20,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 19,
+      "y": 20,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 23,
+      "y": 20,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 32,
+      "y": 20,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 37,
+      "y": 20,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 38,
+      "y": 20,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 40,
+      "y": 20,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 41,
+      "y": 20,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 23,
+      "y": 21,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 32,
+      "y": 21,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 44,
+      "y": 21,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 45,
+      "y": 21,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 46,
+      "y": 21,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 23,
+      "y": 22,
+      "stack": ""
+    },
+    {
+      "id": "DMD",
+      "x": 32,
+      "y": 22,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 18,
+      "y": 23,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 19,
+      "y": 23,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 21,
+      "y": 23,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 22,
+      "y": 23,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 34,
+      "y": 23,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 35,
+      "y": 23,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 37,
+      "y": 23,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 38,
+      "y": 23,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 40,
+      "y": 23,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 41,
+      "y": 23,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 43,
+      "y": 23,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 44,
+      "y": 23,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 55,
+      "y": 23,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 58,
+      "y": 23,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 61,
+      "y": 23,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 55,
+      "y": 24,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 58,
+      "y": 24,
+      "stack": ""
+    },
+    {
+      "id": "SAD",
+      "x": 61,
+      "y": 24,
+      "stack": ""
+    }
+  ],
+  "metadata": {
+    "general": {
+      "1": "Floor",
+      "2": "Walls",
+      "4": "Reception Room",
+      "10": "Boardroom Floor"
+    },
+    "departments": {
+      "11": {
+        "name": "Executive Management",
+        "agent_ids": [
+          "A2",
+          "A3",
+          "A4",
+          "A5"
+        ]
+      },
+      "12": {
+        "name": "Software & Systems Development",
+        "agent_ids": [
+          "B2",
+          "B3",
+          "B4",
+          "B5"
+        ]
+      },
+      "13": {
+        "name": "Data Analysis & Decision Systems",
+        "agent_ids": [
+          "C2",
+          "C3",
+          "C4",
+          "C5"
+        ]
+      },
+      "14": {
+        "name": "Security, Compliance & Risk",
+        "agent_ids": [
+          "D2",
+          "D3",
+          "D4",
+          "D5"
+        ]
+      },
+      "15": {
+        "name": "Client Relations & Communications",
+        "agent_ids": [
+          "E2",
+          "E3",
+          "E4",
+          "E5"
+        ]
+      },
+      "16": {
+        "name": "Creative Digital Media",
+        "agent_ids": [
+          "F2",
+          "F3",
+          "F4",
+          "F5"
+        ]
+      },
+      "17": {
+        "name": "Automation & Tool Operations",
+        "agent_ids": [
+          "G2",
+          "G3",
+          "G4",
+          "G5"
+        ]
+      },
+      "18": {
+        "name": "Multimodal Interaction & Human Interface",
+        "agent_ids": [
+          "H2",
+          "H3",
+          "H4",
+          "H5"
+        ]
+      },
+      "19": {
+        "name": "Research & Intelligence",
+        "agent_ids": [
+          "I2",
+          "I3",
+          "I4",
+          "I5"
+        ]
+      },
+      "20": {
+        "name": "3D Visualisation & Simulation",
+        "agent_ids": [
+          "J2",
+          "J3",
+          "J4",
+          "J5"
+        ]
+      },
+      "21": {
+        "name": "Memory, Knowledge & Training",
+        "agent_ids": [
+          "K2",
+          "K3",
+          "K4",
+          "K5"
+        ]
+      },
+      "8": {
+        "name": "Company Head Office",
+        "agent_ids": []
+      }
+    },
+    "physical_objects": {
+      "DJD": "Department Jobs Desk",
+      "RCD": "Reception Desk",
+      "SAD": "Sub Agents Desks",
+      "DMD": "Department Management Desks",
+      "BRT": "Boardroom Table",
+      "CMD": "Company Management Desk"
+    },
+    "stackable_objects": {},
+    "agents": {
+      "A1": {
+        "role": "Department Manager",
+        "dept": ""
+      },
+      "A2": {
+        "role": "Operations & Workflow Coordinator",
+        "dept": ""
+      },
+      "A3": {
+        "role": "Strategic Planning & Review Specialist",
+        "dept": ""
+      },
+      "A4": {
+        "role": "Task & Dependency Coordinator",
+        "dept": ""
+      },
+      "A5": {
+        "role": "Quality & Communications Officer",
+        "dept": ""
+      },
+      "E1": {
+        "role": "Department Manager",
+        "dept": ""
+      },
+      "E2": {
+        "role": "Client Communications Specialist",
+        "dept": ""
+      },
+      "E3": {
+        "role": "Requirements & Documentation Officer",
+        "dept": ""
+      },
+      "E4": {
+        "role": "Meeting & Presentation Coordinator",
+        "dept": ""
+      },
+      "E5": {
+        "role": "Public Relations & Reporting Specialist",
+        "dept": ""
+      },
+      "I1": {
+        "role": "Department Manager",
+        "dept": ""
+      },
+      "I2": {
+        "role": "Research & Web Intelligence Analyst",
+        "dept": ""
+      },
+      "I3": {
+        "role": "Scientific & Technical Research Specialist",
+        "dept": ""
+      },
+      "I4": {
+        "role": "Data Verification & Statistics Officer",
+        "dept": ""
+      },
+      "I5": {
+        "role": "Knowledge Retrieval Coordinator",
+        "dept": ""
+      },
+      "B1": {
+        "role": "Department Manager",
+        "dept": ""
+      },
+      "B2": {
+        "role": "Full Stack Systems Developer",
+        "dept": ""
+      },
+      "B3": {
+        "role": "Infrastructure & Automation Engineer",
+        "dept": ""
+      },
+      "B4": {
+        "role": "Database & API Integration Specialist",
+        "dept": ""
+      },
+      "B5": {
+        "role": "QA & Deployment Coordinator",
+        "dept": ""
+      },
+      "F1": {
+        "role": "Department Manager",
+        "dept": ""
+      },
+      "F2": {
+        "role": "Digital Media & Graphic Designer",
+        "dept": ""
+      },
+      "F3": {
+        "role": "Video, Audio & Motion Specialist",
+        "dept": ""
+      },
+      "F4": {
+        "role": "Game Development & Technical Artist",
+        "dept": ""
+      },
+      "F5": {
+        "role": "Creative Production Coordinator",
+        "dept": ""
+      },
+      "J1": {
+        "role": "Department Manager",
+        "dept": ""
+      },
+      "J2": {
+        "role": "3D Modelling & Environment Artist",
+        "dept": ""
+      },
+      "J3": {
+        "role": "Rendering & Materials Specialist",
+        "dept": ""
+      },
+      "J4": {
+        "role": "Realtime Simulation Developer",
+        "dept": ""
+      },
+      "J5": {
+        "role": "CAD & Technical Visualisation Coordinator",
+        "dept": ""
+      }
+    }
+  }
+}

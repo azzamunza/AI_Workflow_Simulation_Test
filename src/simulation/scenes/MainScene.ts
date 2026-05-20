@@ -21,6 +21,8 @@ export class MainScene extends Phaser.Scene {
     "Automation & Tool Operations": { x: 57.3 * 32, y: 3.3 * 32 },
     "3D Visualisation & Simulation": { x: 11.5 * 32, y: 4.6 * 32 },
     "Memory, Knowledge & Training": { x: 20.5 * 32, y: 4.6 * 32 },
+    "Creative Digital Media": { x: 49.0 * 32, y: 13.4 * 32 },
+    "Client Relations & Communications": { x: 49.0 * 32, y: 13.4 * 32 },
     "Reception": { x: 3.5 * 32, y: 11.5 * 32 },
     "Meeting": { x: 12.0 * 32, y: 17.5 * 32 }
   };
@@ -41,19 +43,20 @@ export class MainScene extends Phaser.Scene {
     const map = this.make.tilemap({ key: 'map' });
     const tileset = map.addTilesetImage('office-tiles', 'tiles')!;
     map.createLayer('Floor', tileset, 0, 0);
-    const furnitureLayer = map.createLayer('Furniture', tileset, 0, 0)!;
+    map.createLayer('Furniture', tileset, 0, 0);
     
     const floorLayer = map.getLayer('Floor')!;
     const floorData: number[] = [];
-    floorLayer.data.forEach(row => {
-      row.forEach(tile => {
+    floorLayer.data.forEach((row: any) => {
+      row.forEach((tile: any) => {
         floorData.push(tile ? tile.index : 0);
       });
     });
 
     const furnitureData: number[] = [];
-    furnitureLayer.layer.data.forEach(row => {
-      row.forEach(tile => {
+    const furnitureLayer = map.getLayer('Furniture')!;
+    furnitureLayer.data.forEach((row: any) => {
+      row.forEach((tile: any) => {
         furnitureData.push(tile ? tile.index : 0);
       });
     });

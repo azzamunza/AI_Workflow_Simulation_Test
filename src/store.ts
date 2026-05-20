@@ -13,6 +13,7 @@ export interface Task {
   dept: string;
   status: 'Reception' | 'Meeting' | 'In-Dept' | 'Complete' | 'Stubbed';
   blades: Blade[];
+  placedAt?: { x: number, y: number }; // New: Coordinate where box is placed (on desk)
 }
 
 export interface Project {

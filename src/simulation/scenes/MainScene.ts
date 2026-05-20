@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { INITIAL_DATA } from '../data';
 import { useSimulationStore } from '../../store';
 import { type Task, type Project, type Blade } from '../../store';
 import { NavigationManager } from '../Navigation';
@@ -43,8 +44,21 @@ export class MainScene extends Phaser.Scene {
     const map = this.make.tilemap({ key: 'map' });
     const tileset = map.addTilesetImage('office-tiles', 'tiles')!;
     map.createLayer('Floor', tileset, 0, 0);
-    map.createLayer('Furniture', tileset, 0, 0);
     
+    // Draw Desks with correct colors from Excel
+    const deskGraphics = this.add.graphics().setDepth(5);
+    const { desks, metadata } = INITIAL_DATA;
+    desks.forEach((desk: any) => {
+        const objMeta = (metadata.objects as any)[desk.type];
+        const color = objMeta ? parseInt(objMeta.color.replace('#', '0x'), 16) || 0xcccccc : 0xcccccc;
+        deskGraphics.fillStyle(color, 1);
+        desk.tiles.forEach((tile: any) => {
+            deskGraphics.fillRect(tile.x * 32, tile.y * 32, 32, 32);
+            deskGraphics.lineStyle(1, 0x000000, 0.3);
+            deskGraphics.strokeRect(tile.x * 32, tile.y * 32, 32, 32);
+        });
+    });
+
     const floorLayer = map.getLayer('Floor')!;
     const floorData: number[] = [];
     floorLayer.data.forEach((row: any) => {
@@ -243,6 +257,14 @@ export class MainScene extends Phaser.Scene {
             this.taskGraphics.lineStyle(1, 0x000000, 1);
             this.taskGraphics.strokeRect(agentObj.sprite.x - 10, agentObj.sprite.y - 10, 20, 20);
           }
+        }
+
+        // 2. Boxes placed on desks/tables
+        if (task.placedAt) {
+            this.taskGraphics.fillStyle(0xffffff, 1);
+            this.taskGraphics.fillRect(task.placedAt.x - 10, task.placedAt.y - 10, 20, 20);
+            this.taskGraphics.lineStyle(1, 0x000000, 1);
+            this.taskGraphics.strokeRect(task.placedAt.x - 10, task.placedAt.y - 10, 20, 20);
         }
 
         // 2. Blades held by agents

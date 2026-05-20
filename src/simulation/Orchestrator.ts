@@ -19,12 +19,11 @@ export class ProjectManager {
     const store = useSimulationStore.getState();
     const { agents, desks, metadata } = INITIAL_DATA;
 
-    // 1. Map Prefix to Room IDs
     const prefixToRoom: Record<string, number> = {
       "A": 11, "B": 12, "C": 13, "D": 14, "E": 15, "F": 16, "G": 17, "H": 18, "I": 19, "J": 20, "K": 21, "L": 8
     };
 
-    // 2. Initialize Agents from Excel positions
+    // 1. Initialize Agents from Excel positions
     agents.forEach((a: any) => {
       const agentMeta = (metadata.agents as any)[a.id];
       let role: any = 'Sub-Agent';
@@ -34,16 +33,18 @@ export class ProjectManager {
       const spawnX = a.x * 32 + 16;
       const spawnY = a.y * 32 + 16;
 
-      // 3. Assign Desk
       const prefix = a.id.charAt(0);
       const roomId = prefixToRoom[prefix];
       const deskType = role === 'Agent' ? 'CMD' : (role === 'Manager' ? 'DMD' : 'SAD');
       
-      // Find an available desk in the room
       const myDesk = (desks as any[]).find(d => d.room === roomId && d.type === deskType && !d.occupied);
-      if (myDesk) myDesk.occupied = true;
-
-      const deskPos = myDesk ? { x: myDesk.x * 32 + 16, y: myDesk.y * 32 + 16 } : { x: spawnX, y: spawnY };
+      let targetPos = { x: spawnX, y: spawnY };
+      
+      if (myDesk) {
+         myDesk.occupied = true;
+         const tile = myDesk.tiles[0];
+         targetPos = { x: (tile.x + 1) * 32 + 16, y: tile.y * 32 + 16 }; 
+      }
 
       store.updateAgent(a.id, {
         id: a.id,
@@ -51,22 +52,38 @@ export class ProjectManager {
         role: role,
         status: 'Walking to Desk',
         location: { x: spawnX, y: spawnY },
-        targetLocation: deskPos,
+        targetLocation: targetPos,
         isThinking: false
       });
     });
 
-    const clientSpawn = { x: 0 * 32 + 16, y: 5 * 32 + 16 };
-    const receptionPos = INITIAL_DATA.reception_desk ? { x: INITIAL_DATA.reception_desk.x * 32 + 16, y: INITIAL_DATA.reception_desk.y * 32 + 16 } : { x: 4 * 32 + 16, y: 7 * 32 + 16 };
+    // 2. Add Receptionist
+    const receptionDesk = (desks as any[]).find(d => d.type === 'RCD');
+    const receptionistId = 'receptionist';
+    if (receptionDesk) {
+        const deskTile = receptionDesk.tiles[0];
+        store.updateAgent(receptionistId, {
+            id: receptionistId, name: 'Receptionist', role: 'Receptionist',
+            status: 'At Desk',
+            location: { x: (deskTile.x + 1) * 32 + 16, y: deskTile.y * 32 + 16 },
+            isThinking: false
+        });
+    }
 
-    store.updateAgent('client', {
-      id: 'client', name: 'Client', role: 'Client',
-      status: 'Entering', 
-      location: clientSpawn, 
-      isThinking: false,
-      targetLocation: { x: receptionPos.x - 32, y: receptionPos.y }, // Stand in FRONT of desk
-      carryingTaskId: 'initial-client-box'
-    });
+    // 3. Client
+    const entranceSpawn = { x: 0 * 32 + 16, y: 5 * 32 + 16 };
+    if (receptionDesk) {
+        const deskTile = receptionDesk.tiles[0];
+        const stopPos = { x: (deskTile.x - 1) * 32 + 16, y: deskTile.y * 32 + 16 };
+        store.updateAgent('client', {
+          id: 'client', name: 'Client', role: 'Client',
+          status: 'Entering', 
+          location: entranceSpawn, 
+          isThinking: false,
+          targetLocation: stopPos,
+          carryingTaskId: 'initial-client-box'
+        });
+    }
 
     // Initial Task
     store.addProject({
@@ -74,14 +91,11 @@ export class ProjectManager {
       name: 'Client Project',
       status: 'Active',
       tasks: [
-        { id: 'initial-client-box', name: 'Original Request', dept: 'Executive Management', status: 'Reception', blades: [] }
+        { id: 'initial-client-box', name: 'Original Request', dept: 'Client Relations & Communications', status: 'Reception', blades: [] }
       ]
     });
   }
 
-  /**
-   * Main Simulation Logic loop (ticks externally or via timeouts)
-   */
   public step() {
     const store = useSimulationStore.getState();
     const agents = store.agents;
@@ -90,71 +104,79 @@ export class ProjectManager {
 
     // 1. Client arrives at Reception
     if (client.status === 'Entering' && !client.targetLocation) {
-       console.log("[Simulation] Client arrived at Reception.");
        store.updateAgent('client', { status: 'Placing Box' });
+       
+       const receptionDesk = (INITIAL_DATA.desks as any[]).find(d => d.type === 'RCD');
+       const deskTile = receptionDesk?.tiles[0];
+       const dropPos = deskTile ? { x: deskTile.x * 32 + 16, y: deskTile.y * 32 + 16 } : undefined;
+
        setTimeout(() => {
           store.updateAgent('client', { status: 'Leaving', carryingTaskId: undefined, targetLocation: { x: 0 * 32 + 16, y: 5 * 32 + 16 } });
-          const receptionist = INITIAL_DATA.agents.find((a: any) => a.id === 'E1'); // Assume E1 is receptionist
-          if (receptionist) {
-             store.updateAgent('E1', { status: 'Picking up Box', carryingTaskId: 'initial-client-box' });
+          const project = store.projects[0];
+          if (project) {
+              const updatedTasks = project.tasks.map(t => t.id === 'initial-client-box' ? { ...t, placedAt: dropPos } : t);
+              store.updateProject({ ...project, tasks: updatedTasks });
           }
-          setTimeout(() => this.moveReceptionistToMeeting(), 2000);
+          
+          if (dropPos) {
+              store.updateAgent('receptionist', { status: 'Picking up Box', targetLocation: dropPos });
+              this.waitForReceptionistPickUp('initial-client-box');
+          }
        }, 2000);
     }
 
-    // 2. Manager returns to Department and drops box
+    // 2. Managers return to Dept
     const managers = Object.values(agents).filter(a => a.role === 'Manager');
     managers.forEach(m => {
        if (m.status === 'Returning to Dept' && !m.targetLocation && m.carryingTaskId) {
-          console.log(`[Simulation] ${m.name} arrived at Dept Inbox.`);
           const taskId = m.carryingTaskId;
+          const prefix = m.id.charAt(0);
+          const prefixToRoom: Record<string, number> = { "A": 11, "B": 12, "C": 13, "D": 14, "E": 15, "F": 16, "G": 17, "H": 18, "I": 19, "J": 20, "K": 21, "L": 8 };
+          const roomId = prefixToRoom[prefix];
+          const jobDesk = (INITIAL_DATA.desks as any[]).find(d => d.room === roomId && d.type === 'DJD');
+          const deskTile = jobDesk?.tiles[0];
+          const dropPos = deskTile ? { x: deskTile.x * 32 + 16, y: deskTile.y * 32 + 16 } : undefined;
+
           store.updateAgent(m.id, { status: 'Idle', carryingTaskId: undefined });
-          store.updateTask('p-initial', taskId, 'In-Dept');
+          const project = store.projects[0];
+          if (project) {
+              store.updateProject({ ...project, tasks: project.tasks.map(t => t.id === taskId ? { ...t, status: 'In-Dept', placedAt: dropPos } : t) });
+          }
        }
     });
 
-    // 3. Sub-agents pick up blades from boxes in their department
+    // 3. Sub-agents pick up blades
     const subAgents = Object.values(agents).filter(a => a.role === 'Sub-Agent');
     subAgents.forEach(sa => {
-       if (sa.status === 'Waiting') {
+       if (sa.status === 'Waiting' || sa.status === 'At Desk' || sa.status === 'Walking to Desk') {
           const project = store.projects[0];
           if (!project) return;
-          const taskInDept = project.tasks.find(t => t.dept === sa.dept && t.status === 'In-Dept');
+          const prefixToDept: Record<string, string> = { "A": "Executive Management", "B": "Software & Systems Development", "C": "Data Analysis & Decision Systems", "D": "Security, Compliance & Risk", "E": "Client Relations & Communications", "F": "Creative Digital Media", "G": "Automation & Tool Operations", "H": "Multimodal Interaction & Human Interface", "I": "Research & Intelligence", "J": "3D Visualisation & Simulation", "K": "Memory, Knowledge & Training" };
+          const myDept = prefixToDept[sa.id.charAt(0)];
+          const taskInDept = project.tasks.find(t => t.dept === myDept && t.status === 'In-Dept');
           
-          if (taskInDept && taskInDept.blades && taskInDept.blades.length > 0) {
+          if (taskInDept && taskInDept.placedAt) {
              const pendingBlade = taskInDept.blades.find(b => b.status === 'Pending');
              if (pendingBlade) {
-                console.log(`[Simulation] ${sa.name} taking blade ${pendingBlade.id}`);
-                const inbox = this.getDeptInboxLocation(sa.dept!);
                 store.updateAgent(sa.id, { 
                    status: 'Picking up Blade', 
-                   targetLocation: inbox,
+                   targetLocation: taskInDept.placedAt,
                    carryingBladeId: pendingBlade.id
                 });
                 this.updateBladeStatus(project.id, taskInDept.id, pendingBlade.id, 'At-Desk');
                 
-                // Working sequence
                 setTimeout(() => {
                    const desk = this.getSubAgentDeskLocation(sa.id);
                    store.updateAgent(sa.id, { 
                       status: 'Working at Desk', 
-                      targetLocation: { x: desk.x + 16, y: desk.y } // Move to right side of desk
+                      targetLocation: desk
                    });
                    
-                   // Finish work after some time
                    setTimeout(() => {
-                      const reviewSpot = this.getDeptReviewLocation(sa.dept!);
-                      store.updateAgent(sa.id, {
-                         status: 'Moving to Review Desk',
-                         targetLocation: reviewSpot
-                      });
-                      
+                      const reviewSpot = this.getDeptReviewLocation(myDept);
+                      store.updateAgent(sa.id, { status: 'Moving to Review Desk', targetLocation: reviewSpot });
                       setTimeout(() => {
-                         store.updateAgent(sa.id, {
-                            status: 'Waiting',
-                            carryingBladeId: undefined,
-                            targetLocation: { x: desk.x - 16, y: desk.y }
-                         });
+                         store.updateAgent(sa.id, { status: 'Waiting', carryingBladeId: undefined, targetLocation: desk });
                          this.updateBladeStatus(project.id, taskInDept.id, pendingBlade.id, 'Review');
                       }, 4000);
                    }, 5000);
@@ -163,46 +185,68 @@ export class ProjectManager {
           }
        }
     });
+  }
 
-    // 4. Manager reviews blades
-    managers.forEach(m => {
-       if (m.status === 'Idle') {
+  private waitForReceptionistPickUp(taskId: string) {
+      const store = useSimulationStore.getState();
+      const rec = store.agents['receptionist'];
+      if (rec && !rec.targetLocation && rec.status === 'Picking up Box') {
           const project = store.projects[0];
-          if (!project) return;
-          const taskInDept = project.tasks.find(t => t.dept === m.dept && t.status === 'In-Dept');
+          store.updateProject({ ...project, tasks: project.tasks.map(t => t.id === taskId ? { ...t, placedAt: undefined } : t) });
+          store.updateAgent('receptionist', { carryingTaskId: taskId, status: 'Moving to Meeting Room' });
           
-          if (taskInDept && taskInDept.blades) {
-             const reviewBlade = taskInDept.blades.find(b => b.status === 'Review');
-             
-             if (reviewBlade) {
-                const reviewSpot = this.getDeptReviewLocation(m.dept!);
-                store.updateAgent(m.id, {
-                   status: 'Reviewing Blade',
-                   targetLocation: reviewSpot,
-                   carryingBladeId: reviewBlade.id
-                });
-                
-                setTimeout(() => {
-                   const inbox = this.getDeptInboxLocation(m.dept!);
-                   store.updateAgent(m.id, {
-                      status: 'Idle',
-                      targetLocation: inbox,
-                      carryingBladeId: undefined
-                   });
-                   this.updateBladeStatus(project.id, taskInDept.id, reviewBlade.id, 'Complete');
-                   
-                   // If all blades complete, task is complete
-                   const currentProject = store.projects.find(p => p.id === project.id);
-                   const currentTask = currentProject?.tasks.find(t => t.id === taskInDept.id);
-                   if (currentTask && currentTask.blades.every(b => b.status === 'Complete')) {
-                      store.updateTask(project.id, taskInDept.id, 'Complete');
-                      store.recordCompletion();
-                   }
-                }, 3000);
-             }
+          const boardroomTable = (INITIAL_DATA.desks as any[]).find(d => d.type === 'BRT');
+          const tableTile = boardroomTable?.tiles[0];
+          if (tableTile) {
+              store.updateAgent('receptionist', { targetLocation: { x: tableTile.x * 32 + 16, y: tableTile.y * 32 + 16 } });
+              this.waitForMeetingArrival();
           }
-       }
-    });
+      } else {
+          setTimeout(() => this.waitForReceptionistPickUp(taskId), 500);
+      }
+  }
+
+  private waitForMeetingArrival() {
+    const store = useSimulationStore.getState();
+    const agents = store.agents;
+    const receptionist = agents['receptionist'];
+    const managers = Object.values(agents).filter(a => a.role === 'Manager');
+
+    const allAtMeeting = (!receptionist || !receptionist.targetLocation) && managers.every(m => !m.targetLocation);
+
+    if (allAtMeeting && receptionist?.carryingTaskId) {
+       const boardroomTable = (INITIAL_DATA.desks as any[]).find(d => d.type === 'BRT');
+       const tableTile = boardroomTable?.tiles[0];
+       const dropPos = tableTile ? { x: tableTile.x * 32 + 16, y: tableTile.y * 32 + 16 } : undefined;
+
+       const project = store.projects[0];
+       store.updateProject({ ...project, tasks: project.tasks.map(t => t.id === 'initial-client-box' ? { ...t, placedAt: dropPos } : t) });
+       store.updateAgent('receptionist', { carryingTaskId: undefined, status: 'Meeting' });
+
+       setTimeout(() => {
+          const depts = ["Executive Management", "Software & Systems Development", "Research & Intelligence", "3D Visualisation & Simulation", "Memory, Knowledge & Training", "Creative Digital Media", "Client Relations & Communications"];
+          const newTasks: Task[] = depts.map(dept => ({
+             id: `task-${dept}`, name: `${dept} Job`, dept, status: 'Meeting',
+             blades: [
+               { id: `b-${dept}-1`, taskId: `task-${dept}`, status: 'Pending', workProgress: 0 },
+               { id: `b-${dept}-2`, taskId: `task-${dept}`, status: 'Pending', workProgress: 0 }
+             ],
+             placedAt: dropPos
+          }));
+
+          store.updateProject({ ...project, tasks: [...project.tasks, ...newTasks] });
+          managers.forEach(m => {
+             store.updateAgent(m.id, { 
+               status: 'Returning to Dept', 
+               carryingTaskId: `task-${m.dept}`,
+               targetLocation: this.getDeptInboxLocation(m.dept!)
+             });
+          });
+          store.updateAgent('receptionist', { status: 'Returning to Desk', targetLocation: this.getSubAgentDeskLocation('receptionist') });
+       }, 3000);
+    } else {
+       setTimeout(() => this.waitForMeetingArrival(), 1000);
+    }
   }
 
   public getDeptReviewLocation(dept: string): { x: number, y: number } {
@@ -225,98 +269,21 @@ export class ProjectManager {
 
   private getSubAgentDeskLocation(id: string): { x: number, y: number } {
      const agent = INITIAL_DATA.agents.find((a: any) => a.id === id);
+     if (!agent && id === 'receptionist') {
+         const rd = (INITIAL_DATA.desks as any[]).find(d => d.type === 'RCD');
+         return rd ? { x: (rd.tiles[0].x + 1) * 32 + 16, y: rd.tiles[0].y * 32 + 16 } : { x: 0, y: 0 };
+     }
      return agent ? { x: agent.x * 32 + 16, y: agent.y * 32 + 16 } : { x: 0, y: 0 };
   }
 
   private getDeptInboxLocation(dept: string): { x: number, y: number } {
      const prefixMap: Record<string, string> = {
-        "Executive Management": "A",
-        "Software & Systems Development": "B",
-        "Data Analysis & Decision Systems": "C",
-        "Security, Compliance & Risk": "D",
-        "Client Relations & Communications": "E",
-        "Creative Digital Media": "F",
-        "Automation & Tool Operations": "G",
-        "Multimodal Interaction & Human Interface": "H",
-        "Research & Intelligence": "I",
-        "3D Visualisation & Simulation": "J",
-        "Memory, Knowledge & Training": "K",
-        "Company Management": "L"
+        "Executive Management": "A", "Software & Systems Development": "B", "Data Analysis & Decision Systems": "C", "Security, Compliance & Risk": "D", "Client Relations & Communications": "E", "Creative Digital Media": "F", "Automation & Tool Operations": "G", "Multimodal Interaction & Human Interface": "H", "Research & Intelligence": "I", "3D Visualisation & Simulation": "J", "Memory, Knowledge & Training": "K", "Company Management": "L"
      };
      const prefix = prefixMap[dept];
-     const manager = INITIAL_DATA.agents.find((a: any) => a.id === `${prefix}1`);
-     return manager ? { x: manager.x * 32 + 16, y: manager.y * 32 + 16 } : { x: 0, y: 0 };
-  }
-
-  private moveReceptionistToMeeting() {
-    const store = useSimulationStore.getState();
-    const boardroomPos = { x: 12 * 32 + 16, y: 17.5 * 32 + 16 };
-    store.updateAgent('E1', { 
-      status: 'Moving to Meeting Room', 
-      targetLocation: boardroomPos
-    });
-
-    // Summon Managers to unique spots around the large table
-    const managers = Object.values(store.agents).filter(a => a.role === 'Manager');
-    const offsets = [
-       { x: -1, y: -1 }, { x: 1, y: -1 }, { x: -2, y: 0 }, 
-       { x: 2, y: 0 }, { x: -1, y: 1 }, { x: 1, y: 1 }
-    ];
-
-    managers.forEach((m, i) => {
-       const offset = offsets[i % offsets.length];
-       store.updateAgent(m.id, { 
-         status: 'Heading to Meeting', 
-         targetLocation: { x: (12 + offset.x) * 32 + 16, y: (17.5 + offset.y) * 32 + 16 } 
-       });
-    });
-
-    // Check for arrival loop
-    this.waitForMeetingArrival();
-  }
-
-  private waitForMeetingArrival() {
-    const store = useSimulationStore.getState();
-    const agents = store.agents;
-    const receptionist = agents['E1'];
-    const managers = Object.values(agents).filter(a => a.role === 'Manager');
-
-    const allAtMeeting = (!receptionist || !receptionist.targetLocation) && managers.every(m => !m.targetLocation);
-
-    if (allAtMeeting) {
-       console.log("[Simulation] Meeting in progress. Duplicating box for managers.");
-       // Duplicate logic
-       const project = store.projects[0];
-    const depts = ["Software & Systems Development", "Research & Intelligence", "3D Visualisation & Simulation", "Memory, Knowledge & Training", "Executive Management", "Creative Digital Media", "Client Relations & Communications"];
-       
-       const newTasks: Task[] = depts.map(dept => ({
-          id: `task-${dept}`,
-          name: `${dept} Project Segment`,
-          dept,
-          status: 'Meeting',
-          blades: [
-            { id: `b-${dept}-1`, taskId: `task-${dept}`, status: 'Pending', workProgress: 0 },
-            { id: `b-${dept}-2`, taskId: `task-${dept}`, status: 'Pending', workProgress: 0 }
-          ]
-       }));
-
-       store.updateProject({
-          ...project,
-          tasks: [...project.tasks, ...newTasks]
-       });
-
-       // Assign boxes to managers
-       managers.forEach(m => {
-          store.updateAgent(m.id, { 
-            status: 'Returning to Dept', 
-            carryingTaskId: `task-${m.dept}`,
-            targetLocation: this.getDeptInboxLocation(m.dept!)
-          });
-       });
-
-       store.updateAgent('E1', { status: 'Returning to Desk', carryingTaskId: undefined, targetLocation: this.getSubAgentDeskLocation('E1') });
-    } else {
-       setTimeout(() => this.waitForMeetingArrival(), 1000);
-    }
+     const roomId = { "A": 11, "B": 12, "C": 13, "D": 14, "E": 15, "F": 16, "G": 17, "H": 18, "I": 19, "J": 20, "K": 21, "L": 8 }[prefix];
+     const jobDesk = (INITIAL_DATA.desks as any[]).find(d => d.room === roomId && d.type === 'DJD');
+     const tile = jobDesk?.tiles[0];
+     return tile ? { x: (tile.x + 1) * 32 + 16, y: tile.y * 32 + 16 } : { x: 0, y: 0 };
   }
 }

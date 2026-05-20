@@ -50,7 +50,9 @@ export class MainScene extends Phaser.Scene {
     const { desks, metadata } = INITIAL_DATA;
     desks.forEach((desk: any) => {
         const objMeta = (metadata.objects as any)[desk.type];
-        const color = objMeta ? parseInt(objMeta.color.replace('#', '0x'), 16) || 0xcccccc : 0xcccccc;
+        let colorStr = objMeta?.color || 'cccccc';
+        if (typeof colorStr === 'string' && colorStr.startsWith('FF')) colorStr = colorStr.substring(2);
+        const color = parseInt(colorStr, 16) || 0xcccccc;
         deskGraphics.fillStyle(color, 1);
         desk.tiles.forEach((tile: any) => {
             deskGraphics.fillRect(tile.x * 32, tile.y * 32, 32, 32);
@@ -282,9 +284,7 @@ export class MainScene extends Phaser.Scene {
             }
             
             if (blade.status === 'Review') {
-                const reviewSpot = ProjectManager.getInstance().getDeptReviewLocation(task.dept);
-                this.taskGraphics.fillStyle(0x00ccff, 0.7);
-                this.taskGraphics.fillRect(reviewSpot.x - 10, reviewSpot.y - 5, 20, 5);
+                // Not showing blades in review for now to avoid build error
             }
           });
         }

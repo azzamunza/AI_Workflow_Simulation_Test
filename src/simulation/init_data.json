@@ -1595,7 +1595,7 @@
       },
       "RCD": {
         "name": "Reception Desk",
-        "color": 3
+        "color": "215C98"
       },
       "SAD": {
         "name": "Sub Agents Desks",

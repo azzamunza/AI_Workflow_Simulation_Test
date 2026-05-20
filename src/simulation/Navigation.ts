@@ -19,8 +19,8 @@ export class NavigationManager {
         const gid = tileData[y * width + x];
         const furnitureGid = furnitureData[y * width + x];
         
-        // Walkable if it's NOT a wall (GID 9)
-        if (gid !== 9 && furnitureGid !== 9) {
+        // Walkable if it's NOT a wall (GID 9) AND NOT furniture (GID 10)
+        if (gid !== 9 && furnitureGid !== 9 && furnitureGid !== 10) {
           const id = `${x},${y}`;
           this.nodes.set(id, { id, x, y, neighbors: [] });
         }

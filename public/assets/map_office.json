@@ -1,6 +1,7 @@
 {
+  "compressionlevel": -1,
   "height": 43,
-  "width": 63,
+  "infinite": false,
   "layers": [
     {
       "data": [
@@ -2714,12 +2715,13 @@
         0,
         0
       ],
-      "name": "Floor",
-      "type": "tilelayer",
-      "width": 63,
       "height": 43,
-      "visible": true,
+      "id": 1,
+      "name": "Floor",
       "opacity": 1,
+      "type": "tilelayer",
+      "visible": true,
+      "width": 63,
       "x": 0,
       "y": 0
     },
@@ -5435,26 +5437,40 @@
         0,
         0
       ],
-      "name": "Furniture",
-      "type": "tilelayer",
-      "width": 63,
       "height": 43,
-      "visible": true,
+      "id": 2,
+      "name": "Furniture",
       "opacity": 1,
+      "type": "tilelayer",
+      "visible": true,
+      "width": 63,
       "x": 0,
       "y": 0
     }
   ],
+  "nextlayerid": 3,
+  "nextobjectid": 1,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.10.2",
   "tileheight": 32,
-  "tilewidth": 32,
   "tilesets": [
     {
       "columns": 4,
       "firstgid": 1,
       "image": "atlas_global.png",
+      "imageheight": 128,
+      "imagewidth": 128,
+      "margin": 0,
+      "name": "office-tiles",
+      "spacing": 0,
       "tilecount": 16,
       "tileheight": 32,
       "tilewidth": 32
     }
-  ]
+  ],
+  "tilewidth": 32,
+  "type": "map",
+  "version": "1.10",
+  "width": 63
 }

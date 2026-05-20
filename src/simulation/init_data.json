@@ -1356,124 +1356,94 @@
     "stackable_objects": {},
     "agents": {
       "A1": {
-        "role": "Department Manager",
-        "dept": ""
+        "role": "Department Manager"
       },
       "A2": {
-        "role": "Operations & Workflow Coordinator",
-        "dept": ""
+        "role": "Operations & Workflow Coordinator"
       },
       "A3": {
-        "role": "Strategic Planning & Review Specialist",
-        "dept": ""
+        "role": "Strategic Planning & Review Specialist"
       },
       "A4": {
-        "role": "Task & Dependency Coordinator",
-        "dept": ""
+        "role": "Task & Dependency Coordinator"
       },
       "A5": {
-        "role": "Quality & Communications Officer",
-        "dept": ""
+        "role": "Quality & Communications Officer"
       },
       "E1": {
-        "role": "Department Manager",
-        "dept": ""
+        "role": "Department Manager"
       },
       "E2": {
-        "role": "Client Communications Specialist",
-        "dept": ""
+        "role": "Client Communications Specialist"
       },
       "E3": {
-        "role": "Requirements & Documentation Officer",
-        "dept": ""
+        "role": "Requirements & Documentation Officer"
       },
       "E4": {
-        "role": "Meeting & Presentation Coordinator",
-        "dept": ""
+        "role": "Meeting & Presentation Coordinator"
       },
       "E5": {
-        "role": "Public Relations & Reporting Specialist",
-        "dept": ""
+        "role": "Public Relations & Reporting Specialist"
       },
       "I1": {
-        "role": "Department Manager",
-        "dept": ""
+        "role": "Department Manager"
       },
       "I2": {
-        "role": "Research & Web Intelligence Analyst",
-        "dept": ""
+        "role": "Research & Web Intelligence Analyst"
       },
       "I3": {
-        "role": "Scientific & Technical Research Specialist",
-        "dept": ""
+        "role": "Scientific & Technical Research Specialist"
       },
       "I4": {
-        "role": "Data Verification & Statistics Officer",
-        "dept": ""
+        "role": "Data Verification & Statistics Officer"
       },
       "I5": {
-        "role": "Knowledge Retrieval Coordinator",
-        "dept": ""
+        "role": "Knowledge Retrieval Coordinator"
       },
       "B1": {
-        "role": "Department Manager",
-        "dept": ""
+        "role": "Department Manager"
       },
       "B2": {
-        "role": "Full Stack Systems Developer",
-        "dept": ""
+        "role": "Full Stack Systems Developer"
       },
       "B3": {
-        "role": "Infrastructure & Automation Engineer",
-        "dept": ""
+        "role": "Infrastructure & Automation Engineer"
       },
       "B4": {
-        "role": "Database & API Integration Specialist",
-        "dept": ""
+        "role": "Database & API Integration Specialist"
       },
       "B5": {
-        "role": "QA & Deployment Coordinator",
-        "dept": ""
+        "role": "QA & Deployment Coordinator"
       },
       "F1": {
-        "role": "Department Manager",
-        "dept": ""
+        "role": "Department Manager"
       },
       "F2": {
-        "role": "Digital Media & Graphic Designer",
-        "dept": ""
+        "role": "Digital Media & Graphic Designer"
       },
       "F3": {
-        "role": "Video, Audio & Motion Specialist",
-        "dept": ""
+        "role": "Video, Audio & Motion Specialist"
       },
       "F4": {
-        "role": "Game Development & Technical Artist",
-        "dept": ""
+        "role": "Game Development & Technical Artist"
       },
       "F5": {
-        "role": "Creative Production Coordinator",
-        "dept": ""
+        "role": "Creative Production Coordinator"
       },
       "J1": {
-        "role": "Department Manager",
-        "dept": ""
+        "role": "Department Manager"
       },
       "J2": {
-        "role": "3D Modelling & Environment Artist",
-        "dept": ""
+        "role": "3D Modelling & Environment Artist"
       },
       "J3": {
-        "role": "Rendering & Materials Specialist",
-        "dept": ""
+        "role": "Rendering & Materials Specialist"
       },
       "J4": {
-        "role": "Realtime Simulation Developer",
-        "dept": ""
+        "role": "Realtime Simulation Developer"
       },
       "J5": {
-        "role": "CAD & Technical Visualisation Coordinator",
-        "dept": ""
+        "role": "CAD & Technical Visualisation Coordinator"
       }
     }
   }

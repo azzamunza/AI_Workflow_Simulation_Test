@@ -166,8 +166,10 @@ export class MainScene extends Phaser.Scene {
   private handleAgentMovement(id: string, sprite: Phaser.GameObjects.Arc | Phaser.GameObjects.Triangle, data: any) {
     if (data.isThinking) return;
 
-    // Agent Avoidance Force
-    this.applySeparation(id, sprite);
+    // NO SEPARATION FOR SEATED AGENTS
+    if (data.status !== 'Seated in Boardroom' && data.status !== 'Seated in Meeting' && data.status !== 'At Desk') {
+       this.applySeparation(id, sprite);
+    }
 
     if (data.targetLocation) {
       let pathObj = this.agentPaths.get(id);

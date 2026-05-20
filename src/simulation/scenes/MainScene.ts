@@ -63,7 +63,7 @@ export class MainScene extends Phaser.Scene {
 
     this.navManager = new NavigationManager(floorData, map.width, map.height, furnitureData);
 
-    this.taskGraphics = this.add.graphics().setDepth(20);
+    this.taskGraphics = this.add.graphics().setDepth(50);
     this.debugGraphics = this.add.graphics().setDepth(100).lineStyle(2, 0xff0000, 0.5);
 
     ProjectManager.getInstance().initializeAgents();
@@ -91,7 +91,8 @@ export class MainScene extends Phaser.Scene {
         else if (agent.id.startsWith('K')) color = 0x8d99ae;
 
         if (agent.role === 'Client') {
-          sprite = this.add.triangle(agent.location.x, agent.location.y, 0, 16, 16, -16, 32, 16, 0xffffff).setDepth(10);
+          // Centering the triangle so its base is at y+16 and tip at y-16
+          sprite = this.add.triangle(agent.location.x, agent.location.y, 0, 16, 16, -16, 32, 16, 0xffffff).setDepth(20);
         } else {
           if (agent.role === 'Manager') size = 32 * 0.8;
           else if (agent.role === 'Sub-Agent') size = 32 * 0.65;
@@ -100,7 +101,7 @@ export class MainScene extends Phaser.Scene {
           // For now, if role is just 'Agent' (Head Office) make it full size.
           if (agent.role === 'Agent') size = 32;
 
-          sprite = this.add.circle(agent.location.x, agent.location.y, size / 2, color).setDepth(10);
+          sprite = this.add.circle(agent.location.x, agent.location.y, size / 2, color).setDepth(20);
           (sprite as Phaser.GameObjects.Arc).setStrokeStyle(2, 0xffffff);
         }
 
@@ -171,10 +172,11 @@ export class MainScene extends Phaser.Scene {
         const dy = target.y - sprite.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist < 4) {
+        if (dist < 8) {
           pathObj.index++;
           if (pathObj.index >= pathObj.path.length) {
             useSimulationStore.getState().updateAgent(id, { targetLocation: undefined });
+            this.agentPaths.delete(id); // Clear path object when done
           }
         } else {
           const angle = Math.atan2(dy, dx);

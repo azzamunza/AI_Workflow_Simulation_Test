@@ -20,48 +20,37 @@ export class ProjectManager {
     const { agents, metadata } = INITIAL_DATA;
 
     // 1. Initialize Agents from Excel positions
+    const entranceSpawn = { x: 0 * 32 + 16, y: 5 * 32 + 16 };
+
     agents.forEach((a: any) => {
       const agentMeta = (metadata.agents as any)[a.id];
       let role: any = 'Sub-Agent';
       if (agentMeta?.role?.includes('Company Manager')) role = 'Agent';
       else if (agentMeta?.role?.includes('Department Manager')) role = 'Manager';
 
-      // Spawn at entrance for "Entering" effect, or just teleport to desk?
-      // Aaron asked why they are not moving to desks. Let's spawn them at center corridor (26, 1)?
-      // For now, let's spawn them at a common entry point so they walk TO their desks.
-      const entrySpawn = { x: 26 * 32 + 16, y: 1 * 32 + 16 };
+      const deskPos = { x: a.x * 32 + 16, y: a.y * 32 + 16 };
 
       store.updateAgent(a.id, {
         id: a.id,
         name: agentMeta?.role || a.id,
         role: role,
-        status: 'Idle',
-        location: entrySpawn,
+        status: 'Walking to Desk',
+        location: entranceSpawn,
+        targetLocation: deskPos,
         isThinking: false
       });
     });
 
     // 2. Client (starts outside)
-    // Find a valid outside tile (e.g., 0,5)
-    const clientSpawn = { x: 0 * 32 + 16, y: 5 * 32 + 16 };
     const receptionPos = INITIAL_DATA.reception_desk ? { x: INITIAL_DATA.reception_desk.x * 32 + 16, y: INITIAL_DATA.reception_desk.y * 32 + 16 } : { x: 4 * 32 + 16, y: 7 * 32 + 16 };
 
     store.updateAgent('client', {
       id: 'client', name: 'Client', role: 'Client',
       status: 'Entering', 
-      location: clientSpawn, 
+      location: entranceSpawn, 
       isThinking: false,
       targetLocation: { x: receptionPos.x - 32, y: receptionPos.y }, // Stand in FRONT of desk
       carryingTaskId: 'initial-client-box'
-    });
-
-    // Ensure all agents move to their desks if they have one
-    agents.forEach((a: any) => {
-       const deskPos = { x: a.x * 32 + 16, y: a.y * 32 + 16 };
-       store.updateAgent(a.id, { 
-          targetLocation: deskPos,
-          status: 'Moving to Desk'
-       });
     });
 
     // Initial Task

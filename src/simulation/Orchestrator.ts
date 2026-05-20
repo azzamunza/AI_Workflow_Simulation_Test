@@ -17,37 +17,52 @@ export class ProjectManager {
 
   public initializeAgents() {
     const store = useSimulationStore.getState();
-    const { agents, metadata } = INITIAL_DATA;
+    const { agents, desks, metadata } = INITIAL_DATA;
 
-    // 1. Initialize Agents from Excel positions
-    const entranceSpawn = { x: 0 * 32 + 16, y: 5 * 32 + 16 };
+    // 1. Map Prefix to Room IDs
+    const prefixToRoom: Record<string, number> = {
+      "A": 11, "B": 12, "C": 13, "D": 14, "E": 15, "F": 16, "G": 17, "H": 18, "I": 19, "J": 20, "K": 21, "L": 8
+    };
 
+    // 2. Initialize Agents from Excel positions
     agents.forEach((a: any) => {
       const agentMeta = (metadata.agents as any)[a.id];
       let role: any = 'Sub-Agent';
       if (agentMeta?.role?.includes('Company Manager')) role = 'Agent';
       else if (agentMeta?.role?.includes('Department Manager')) role = 'Manager';
 
-      const deskPos = { x: a.x * 32 + 16, y: a.y * 32 + 16 };
+      const spawnX = a.x * 32 + 16;
+      const spawnY = a.y * 32 + 16;
+
+      // 3. Assign Desk
+      const prefix = a.id.charAt(0);
+      const roomId = prefixToRoom[prefix];
+      const deskType = role === 'Agent' ? 'CMD' : (role === 'Manager' ? 'DMD' : 'SAD');
+      
+      // Find an available desk in the room
+      const myDesk = (desks as any[]).find(d => d.room === roomId && d.type === deskType && !d.occupied);
+      if (myDesk) myDesk.occupied = true;
+
+      const deskPos = myDesk ? { x: myDesk.x * 32 + 16, y: myDesk.y * 32 + 16 } : { x: spawnX, y: spawnY };
 
       store.updateAgent(a.id, {
         id: a.id,
         name: agentMeta?.role || a.id,
         role: role,
         status: 'Walking to Desk',
-        location: entranceSpawn,
+        location: { x: spawnX, y: spawnY },
         targetLocation: deskPos,
         isThinking: false
       });
     });
 
-    // 2. Client (starts outside)
+    const clientSpawn = { x: 0 * 32 + 16, y: 5 * 32 + 16 };
     const receptionPos = INITIAL_DATA.reception_desk ? { x: INITIAL_DATA.reception_desk.x * 32 + 16, y: INITIAL_DATA.reception_desk.y * 32 + 16 } : { x: 4 * 32 + 16, y: 7 * 32 + 16 };
 
     store.updateAgent('client', {
       id: 'client', name: 'Client', role: 'Client',
       status: 'Entering', 
-      location: entranceSpawn, 
+      location: clientSpawn, 
       isThinking: false,
       targetLocation: { x: receptionPos.x - 32, y: receptionPos.y }, // Stand in FRONT of desk
       carryingTaskId: 'initial-client-box'

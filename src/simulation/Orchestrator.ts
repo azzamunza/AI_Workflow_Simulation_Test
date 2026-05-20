@@ -26,32 +26,38 @@ export class ProjectManager {
       if (agentMeta?.role?.includes('Company Manager')) role = 'Agent';
       else if (agentMeta?.role?.includes('Department Manager')) role = 'Manager';
 
+      const spawnX = a.x * 32 + 16;
+      const spawnY = a.y * 32 + 16;
+
       store.updateAgent(a.id, {
         id: a.id,
         name: agentMeta?.role || a.id,
         role: role,
         status: 'Idle',
-        location: { x: a.x * 32 + 16, y: a.y * 32 + 16 },
+        location: { x: spawnX, y: spawnY },
         isThinking: false
       });
+
+      // Special case: Receptionist
+      if (a.id === 'E1') { // Example: If E1 is the receptionist
+         // Move to back of desk? Or just ensure they are at their desk location.
+         // Actually, if we want them to move TO desks, we should spawn them at entrance.
+      }
     });
 
-    // Special cases (Receptionist/Client if not in Excel yet or as fallback)
-    if (!store.agents['receptionist']) {
-      store.updateAgent('receptionist', {
-        id: 'receptionist', name: 'Receptionist', role: 'Receptionist',
-        status: 'Ready', location: { x: 3.5 * 32 + 16, y: 11.5 * 32 + 16 }, isThinking: false
-      });
-    }
+    // 2. Client (starts outside)
+    // Find a valid outside tile (e.g., 0,5)
+    const clientSpawn = { x: 0 * 32 + 16, y: 5 * 32 + 16 };
+    const receptionPos = INITIAL_DATA.reception_desk ? { x: INITIAL_DATA.reception_desk.x * 32 + 16, y: INITIAL_DATA.reception_desk.y * 32 + 16 } : { x: 4 * 32 + 16, y: 7 * 32 + 16 };
 
-    if (!store.agents['client']) {
-      store.updateAgent('client', {
-        id: 'client', name: 'Client', role: 'Client',
-        status: 'Entering', location: { x: 0 * 32 + 16, y: 7 * 32 + 16 }, isThinking: false,
-        targetLocation: { x: 2 * 32 + 16, y: 11 * 32 + 16 },
-        carryingTaskId: 'initial-client-box'
-      });
-    }
+    store.updateAgent('client', {
+      id: 'client', name: 'Client', role: 'Client',
+      status: 'Entering', 
+      location: clientSpawn, 
+      isThinking: false,
+      targetLocation: { x: receptionPos.x - 32, y: receptionPos.y }, // Stand in FRONT of desk
+      carryingTaskId: 'initial-client-box'
+    });
 
     // Initial Task
     store.addProject({
@@ -78,8 +84,11 @@ export class ProjectManager {
        console.log("[Simulation] Client arrived at Reception.");
        store.updateAgent('client', { status: 'Placing Box' });
        setTimeout(() => {
-          store.updateAgent('client', { status: 'Leaving', carryingTaskId: undefined, targetLocation: { x: 0 * 32 + 16, y: 7 * 32 + 16 } });
-          store.updateAgent('receptionist', { status: 'Picking up Box', carryingTaskId: 'initial-client-box' });
+          store.updateAgent('client', { status: 'Leaving', carryingTaskId: undefined, targetLocation: { x: 0 * 32 + 16, y: 5 * 32 + 16 } });
+          const receptionist = INITIAL_DATA.agents.find((a: any) => a.id === 'E1'); // Assume E1 is receptionist
+          if (receptionist) {
+             store.updateAgent('E1', { status: 'Picking up Box', carryingTaskId: 'initial-client-box' });
+          }
           setTimeout(() => this.moveReceptionistToMeeting(), 2000);
        }, 2000);
     }
@@ -232,9 +241,10 @@ export class ProjectManager {
 
   private moveReceptionistToMeeting() {
     const store = useSimulationStore.getState();
-    store.updateAgent('receptionist', { 
+    const boardroomPos = { x: 12 * 32 + 16, y: 17.5 * 32 + 16 };
+    store.updateAgent('E1', { 
       status: 'Moving to Meeting Room', 
-      targetLocation: { x: 12 * 32 + 16, y: 17.5 * 32 + 16 } 
+      targetLocation: boardroomPos
     });
 
     // Summon Managers to unique spots around the large table
@@ -259,10 +269,10 @@ export class ProjectManager {
   private waitForMeetingArrival() {
     const store = useSimulationStore.getState();
     const agents = store.agents;
-    const receptionist = agents['receptionist'];
+    const receptionist = agents['E1'];
     const managers = Object.values(agents).filter(a => a.role === 'Manager');
 
-    const allAtMeeting = !receptionist.targetLocation && managers.every(m => !m.targetLocation);
+    const allAtMeeting = (!receptionist || !receptionist.targetLocation) && managers.every(m => !m.targetLocation);
 
     if (allAtMeeting) {
        console.log("[Simulation] Meeting in progress. Duplicating box for managers.");
@@ -295,7 +305,7 @@ export class ProjectManager {
           });
        });
 
-       store.updateAgent('receptionist', { status: 'Returning to Desk', carryingTaskId: undefined, targetLocation: { x: 3.5 * 32 + 16, y: 11.5 * 32 + 16 } });
+       store.updateAgent('E1', { status: 'Returning to Desk', carryingTaskId: undefined, targetLocation: this.getSubAgentDeskLocation('E1') });
     } else {
        setTimeout(() => this.waitForMeetingArrival(), 1000);
     }

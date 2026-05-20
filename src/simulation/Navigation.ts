@@ -13,20 +13,14 @@ export class NavigationManager {
   }
 
   private bakeGraph(tileData: number[], width: number, height: number, furnitureData: number[]) {
-    // Include 0 (Outside/Empty), 1-8 (Floor/Rooms), 10-21 (Extended Rooms)
-    // EXCLUDE 9 (Walls)
-    const unwalkableGids = [9];
-
+    // 1. Identify walkable nodes
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const gid = tileData[y * width + x];
         const furnitureGid = furnitureData[y * width + x];
         
-        // Walkable if it's NOT a wall and NOT blocked by furniture (GID 9)
-        // We allow walking through furniture GID 10 (desks) for pathfinding purposes if needed,
-        // or we can stick to furnitureGid === 0 for strict collision.
-        // Let's use furnitureGid !== 9 to allow walking over non-wall items.
-        if (!unwalkableGids.includes(gid) && furnitureGid !== 9) {
+        // Walkable if it's NOT a wall (GID 9)
+        if (gid !== 9 && furnitureGid !== 9) {
           const id = `${x},${y}`;
           this.nodes.set(id, { id, x, y, neighbors: [] });
         }

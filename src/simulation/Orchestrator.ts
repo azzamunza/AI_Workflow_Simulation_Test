@@ -8,6 +8,19 @@ export class ProjectManager {
     return ProjectManager.instance;
   }
 
+  private getInteractionSpot(gridX: number, gridY: number): { x: number, y: number } {
+     const neighbors = [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}];
+     for (const n of neighbors) {
+         const nx = gridX + n.x;
+         const ny = gridY + n.y;
+         const isFurniture = (INITIAL_DATA.desks as any[]).some(d => d.tiles.some((t: any) => t.x === nx && t.y === ny));
+         if (!isFurniture && nx >= 0 && nx < 63 && ny >= 0 && ny < 43) {
+             return { x: nx * 32 + 16, y: ny * 32 + 16 };
+         }
+     }
+     return { x: gridX * 32 + 16, y: gridY * 32 + 16 };
+  }
+
   public initializeAgents() {
     const store = useSimulationStore.getState();
     const { agents, desks, metadata } = INITIAL_DATA;
@@ -16,7 +29,7 @@ export class ProjectManager {
       "A": 11, "B": 12, "C": 13, "D": 14, "E": 15, "F": 16, "G": 17, "H": 18, "I": 19, "J": 20, "K": 21, "L": 8
     };
 
-    // 1. Initialize Agents from Spawn Locations
+    // 1. Initialize Agents
     agents.forEach((a: any) => {
       const agentMeta = (metadata.agents as any)[a.id];
       let role: any = 'Sub-Agent';
@@ -26,7 +39,6 @@ export class ProjectManager {
       const spawnX = a.x * 32 + 16;
       const spawnY = a.y * 32 + 16;
 
-      // 2. Desk Allocation (sitting logic: 1 square away)
       const prefix = a.id.charAt(0);
       const roomId = prefixToRoom[prefix];
       const deskType = role === 'Agent' ? 'CMD' : (role === 'Manager' ? 'DMD' : 'SAD');
@@ -36,9 +48,7 @@ export class ProjectManager {
       
       if (myDesk) {
          myDesk.occupied = true;
-         // Sitting position: 1 square to the right of the first tile
-         const tile = myDesk.tiles[0];
-         deskTarget = { x: (tile.x + 1) * 32 + 16, y: tile.y * 32 + 16 }; 
+         deskTarget = this.getInteractionSpot(myDesk.tiles[0].x, myDesk.tiles[0].y);
       }
 
       store.updateAgent(a.id, {
@@ -50,27 +60,26 @@ export class ProjectManager {
       });
     });
 
-    // 3. Receptionist (E1 sits behind desk)
+    // 2. Receptionist
     const receptionDesk = (desks as any[]).find(d => d.type === 'RCD');
     if (receptionDesk) {
-        const deskTile = receptionDesk.tiles[0];
-        // Behind desk
+        const spot = this.getInteractionSpot(receptionDesk.tiles[0].x, receptionDesk.tiles[0].y);
         store.updateAgent('receptionist', {
             id: 'receptionist', name: 'Receptionist', role: 'Receptionist',
             status: 'At Desk',
-            location: { x: (deskTile.x + 1) * 32 + 16, y: deskTile.y * 32 + 16 },
+            location: spot,
             isThinking: false
         });
     }
 
-    // 4. Client (Spawn at 0,5)
-    const clientSpawn = { x: 0 * 32 + 16, y: 5 * 32 + 16 };
+    // 3. Client
+    const entranceSpawn = { x: 0 * 32 + 16, y: 5 * 32 + 16 };
     if (receptionDesk) {
         const deskTile = receptionDesk.tiles[0];
-        const stopPos = { x: (deskTile.x - 1) * 32 + 16, y: deskTile.y * 32 + 16 };
+        const stopPos = this.getInteractionSpot(deskTile.x, deskTile.y);
         store.updateAgent('client', {
           id: 'client', name: 'Client', role: 'Client',
-          status: 'Entering', location: clientSpawn, isThinking: false,
+          status: 'Entering', location: entranceSpawn, isThinking: false,
           targetLocation: stopPos,
           carryingTaskId: 'initial-client-box'
         });
@@ -92,12 +101,14 @@ export class ProjectManager {
     if (client.status === 'Entering' && !client.targetLocation) {
        store.updateAgent('client', { status: 'Placing Box' });
        const receptionDesk = (INITIAL_DATA.desks as any[]).find(d => d.type === 'RCD');
-       const dropPos = { x: receptionDesk.tiles[0].x * 32 + 16, y: receptionDesk.tiles[0].y * 32 + 16 };
+       const deskTile = receptionDesk?.tiles[0];
+       const dropPos = { x: deskTile.x * 32 + 16, y: deskTile.y * 32 + 16 };
+       const pickUpSpot = this.getInteractionSpot(deskTile.x, deskTile.y);
 
        setTimeout(() => {
           store.updateAgent('client', { status: 'Leaving', carryingTaskId: undefined, targetLocation: { x: 0, y: 5 * 32 + 16 } });
           this.updateTaskLocation('initial-client-box', dropPos);
-          store.updateAgent('receptionist', { status: 'Picking up Box', targetLocation: dropPos });
+          store.updateAgent('receptionist', { status: 'Picking up Box', targetLocation: pickUpSpot });
        }, 2000);
     }
 
@@ -106,23 +117,26 @@ export class ProjectManager {
     if (rec && rec.status === 'Picking up Box' && !rec.targetLocation && !rec.carryingTaskId) {
         this.updateTaskLocation('initial-client-box', undefined);
         const boardroomTable = (INITIAL_DATA.desks as any[]).find(d => d.type === 'BRT');
-        const tablePos = { x: boardroomTable.tiles[0].x * 32 + 16, y: boardroomTable.tiles[0].y * 32 + 16 };
-        store.updateAgent('receptionist', { carryingTaskId: 'initial-client-box', status: 'Moving to Meeting', targetLocation: tablePos });
+        const tableTile = boardroomTable?.tiles[0];
+        const spot = tableTile ? this.getInteractionSpot(tableTile.x, tableTile.y) : { x: 0, y: 0 };
+        store.updateAgent('receptionist', { carryingTaskId: 'initial-client-box', status: 'Moving to Meeting', targetLocation: spot });
     }
 
     // 3. Meeting arrival
     if (rec && rec.status === 'Moving to Meeting' && !rec.targetLocation) {
         const boardroomTable = (INITIAL_DATA.desks as any[]).find(d => d.type === 'BRT');
-        const tablePos = { x: boardroomTable.tiles[0].x * 32 + 16, y: boardroomTable.tiles[0].y * 32 + 16 };
+        const tableTile = boardroomTable?.tiles[0];
+        const tablePos = { x: tableTile.x * 32 + 16, y: tableTile.y * 32 + 16 };
+        const spot = this.getInteractionSpot(tableTile.x, tableTile.y);
+
         this.updateTaskLocation('initial-client-box', tablePos);
         store.updateAgent('receptionist', { carryingTaskId: undefined, status: 'Returning to Desk', targetLocation: this.getSubAgentDeskLocation('receptionist') });
         
-        // Summon Managers
         const managers = Object.values(agents).filter(a => a.role === 'Manager');
-        managers.forEach(m => store.updateAgent(m.id, { status: 'Heading to Meeting', targetLocation: tablePos }));
+        managers.forEach(m => store.updateAgent(m.id, { status: 'Heading to Meeting', targetLocation: spot }));
     }
 
-    // 4. Managers pick up clones
+    // 4. Managers
     const managers = Object.values(agents).filter(a => a.role === 'Manager');
     managers.forEach(m => {
        if (m.status === 'Heading to Meeting' && !m.targetLocation) {
@@ -132,13 +146,20 @@ export class ProjectManager {
        }
        
        if (m.status === 'Returning to Dept' && !m.targetLocation && m.carryingTaskId) {
-          const dropPos = this.getDeptInboxLocation(m.dept || "");
-          this.updateTaskLocation(m.carryingTaskId, dropPos, 'In-Dept');
+          const dropPos = this.getDeptInboxLocation(m.dept || ""); // This is the interaction spot
+          // We need the ACTUAL desk tile pos for the box
+          const prefix = m.id.charAt(0);
+          const prefixToRoom: Record<string, number> = { "A": 11, "B": 12, "C": 13, "D": 14, "E": 15, "F": 16, "G": 17, "H": 18, "I": 19, "J": 20, "K": 21, "L": 8 };
+          const roomId = prefixToRoom[prefix];
+          const jobDesk = (INITIAL_DATA.desks as any[]).find(d => d.room === roomId && d.type === 'DJD');
+          const boxPos = jobDesk ? { x: jobDesk.tiles[0].x * 32 + 16, y: jobDesk.tiles[0].y * 32 + 16 } : dropPos;
+
+          this.updateTaskLocation(m.carryingTaskId, boxPos, 'In-Dept');
           store.updateAgent(m.id, { status: 'At Desk', carryingTaskId: undefined, targetLocation: this.getSubAgentDeskLocation(m.id) });
        }
     });
 
-    // 5. Sub-agents work
+    // 5. Sub-agents
     const subAgents = Object.values(agents).filter(a => a.role === 'Sub-Agent');
     subAgents.forEach(sa => {
        if (sa.status === 'At Desk' || sa.status === 'Walking to Desk' || sa.status === 'Waiting') {
@@ -146,8 +167,9 @@ export class ProjectManager {
           const myTask = project?.tasks.find(t => t.status === 'In-Dept' && t.placedAt && this.isAgentInDept(sa.id, t.dept));
           if (myTask) {
              const blade = myTask.blades.find(b => b.status === 'Pending');
-             if (blade) {
-                store.updateAgent(sa.id, { status: 'Picking up Blade', targetLocation: myTask.placedAt, carryingBladeId: blade.id });
+             if (blade && myTask.placedAt) {
+                const pickUpSpot = this.getInteractionSpot(Math.floor(myTask.placedAt.x / 32), Math.floor(myTask.placedAt.y / 32));
+                store.updateAgent(sa.id, { status: 'Picking up Blade', targetLocation: pickUpSpot, carryingBladeId: blade.id });
                 this.updateBladeStatus(project.id, myTask.id, blade.id, 'At-Desk');
                 setTimeout(() => {
                    const desk = this.getSubAgentDeskLocation(sa.id);
@@ -198,7 +220,7 @@ export class ProjectManager {
      const agent = INITIAL_DATA.agents.find((a: any) => a.id === id);
      if (!agent && id === 'receptionist') {
          const rd = (INITIAL_DATA.desks as any[]).find(d => d.type === 'RCD');
-         return rd ? { x: (rd.tiles[0].x + 1) * 32 + 16, y: rd.tiles[0].y * 32 + 16 } : { x: 0, y: 0 };
+         return rd ? this.getInteractionSpot(rd.tiles[0].x, rd.tiles[0].y) : { x: 0, y: 0 };
      }
      if (agent) {
          const prefix = id.charAt(0);
@@ -206,7 +228,7 @@ export class ProjectManager {
          const role = (INITIAL_DATA.metadata.agents as any)[id]?.role;
          const deskType = role?.includes('Company Manager') ? 'CMD' : (role?.includes('Department Manager') ? 'DMD' : 'SAD');
          const desk = (INITIAL_DATA.desks as any[]).find(d => d.room === roomId && d.type === deskType);
-         if (desk) return { x: (desk.tiles[0].x + 1) * 32 + 16, y: desk.tiles[0].y * 32 + 16 };
+         if (desk) return this.getInteractionSpot(desk.tiles[0].x, desk.tiles[0].y);
      }
      return { x: 0, y: 0 };
   }
@@ -216,6 +238,6 @@ export class ProjectManager {
      const prefix = prefixMap[dept];
      const roomId = { "A": 11, "B": 12, "C": 13, "D": 14, "E": 15, "F": 16, "G": 17, "H": 18, "I": 19, "J": 20, "K": 21, "L": 8 }[prefix];
      const jobDesk = (INITIAL_DATA.desks as any[]).find(d => d.room === roomId && d.type === 'DJD');
-     return jobDesk ? { x: jobDesk.tiles[0].x * 32 + 16, y: jobDesk.tiles[0].y * 32 + 16 } : { x: 0, y: 0 };
+     return jobDesk ? this.getInteractionSpot(jobDesk.tiles[0].x, jobDesk.tiles[0].y) : { x: 0, y: 0 };
   }
 }

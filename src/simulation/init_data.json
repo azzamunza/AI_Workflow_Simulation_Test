@@ -1,6 +1,36 @@
 {
   "agents": [
     {
+      "id": "G1",
+      "x": 52,
+      "y": 1
+    },
+    {
+      "id": "G2",
+      "x": 52,
+      "y": 2
+    },
+    {
+      "id": "G3",
+      "x": 52,
+      "y": 3
+    },
+    {
+      "id": "G4",
+      "x": 52,
+      "y": 4
+    },
+    {
+      "id": "G5",
+      "x": 52,
+      "y": 5
+    },
+    {
+      "id": "H1",
+      "x": 52,
+      "y": 9
+    },
+    {
       "id": "J1",
       "x": 11,
       "y": 10
@@ -23,6 +53,81 @@
     {
       "id": "J5",
       "x": 15,
+      "y": 10
+    },
+    {
+      "id": "K1",
+      "x": 17,
+      "y": 10
+    },
+    {
+      "id": "K2",
+      "x": 18,
+      "y": 10
+    },
+    {
+      "id": "K3",
+      "x": 19,
+      "y": 10
+    },
+    {
+      "id": "K4",
+      "x": 20,
+      "y": 10
+    },
+    {
+      "id": "K5",
+      "x": 21,
+      "y": 10
+    },
+    {
+      "id": "C1",
+      "x": 31,
+      "y": 10
+    },
+    {
+      "id": "C2",
+      "x": 32,
+      "y": 10
+    },
+    {
+      "id": "C3",
+      "x": 33,
+      "y": 10
+    },
+    {
+      "id": "C4",
+      "x": 34,
+      "y": 10
+    },
+    {
+      "id": "C5",
+      "x": 35,
+      "y": 10
+    },
+    {
+      "id": "D1",
+      "x": 37,
+      "y": 10
+    },
+    {
+      "id": "D2",
+      "x": 38,
+      "y": 10
+    },
+    {
+      "id": "D3",
+      "x": 39,
+      "y": 10
+    },
+    {
+      "id": "D4",
+      "x": 40,
+      "y": 10
+    },
+    {
+      "id": "D5",
+      "x": 41,
       "y": 10
     },
     {
@@ -51,6 +156,26 @@
       "y": 10
     },
     {
+      "id": "H2",
+      "x": 52,
+      "y": 10
+    },
+    {
+      "id": "H3",
+      "x": 52,
+      "y": 11
+    },
+    {
+      "id": "H4",
+      "x": 52,
+      "y": 12
+    },
+    {
+      "id": "H5",
+      "x": 52,
+      "y": 13
+    },
+    {
       "id": "I1",
       "x": 52,
       "y": 17
@@ -59,6 +184,11 @@
       "id": "I2",
       "x": 52,
       "y": 18
+    },
+    {
+      "id": "L1",
+      "x": 3,
+      "y": 19
     },
     {
       "id": "A1",
@@ -1444,6 +1574,84 @@
       },
       "J5": {
         "role": "CAD & Technical Visualisation Coordinator"
+      },
+      "C1": {
+        "role": "Department Manager"
+      },
+      "C2": {
+        "role": "Data & Forecasting Analyst"
+      },
+      "C3": {
+        "role": "Machine Learning & Optimisation Specialist"
+      },
+      "C4": {
+        "role": "Reporting & Visualisation Officer"
+      },
+      "C5": {
+        "role": "Business Intelligence Coordinator"
+      },
+      "G1": {
+        "role": "Department Manager"
+      },
+      "G2": {
+        "role": "Desktop & Browser Automation Operator"
+      },
+      "G3": {
+        "role": "Workflow & Script Execution Specialist"
+      },
+      "G4": {
+        "role": "Robotics & Device Control Technician"
+      },
+      "G5": {
+        "role": "API & Process Automation Coordinator"
+      },
+      "K1": {
+        "role": "Department Manager"
+      },
+      "K2": {
+        "role": "Knowledge Base & Archive Specialist"
+      },
+      "K3": {
+        "role": "Semantic Indexing & Context Coordinator"
+      },
+      "K4": {
+        "role": "Training & Fine-Tuning Officer"
+      },
+      "K5": {
+        "role": "Information Management Analyst"
+      },
+      "D1": {
+        "role": "Department Manager"
+      },
+      "D2": {
+        "role": "Cybersecurity & Threat Analyst"
+      },
+      "D3": {
+        "role": "Compliance & Privacy Officer"
+      },
+      "D4": {
+        "role": "Access Control & Credential Specialist"
+      },
+      "D5": {
+        "role": "Risk & Vulnerability Coordinator"
+      },
+      "H1": {
+        "role": "Department Manager"
+      },
+      "H2": {
+        "role": "Vision & Image Processing Specialist"
+      },
+      "H3": {
+        "role": "Speech & Voice Interaction Operator"
+      },
+      "H4": {
+        "role": "Human Interface & Accessibility Coordinator"
+      },
+      "H5": {
+        "role": "Multimodal Systems Analyst"
+      },
+      "L1": {
+        "role": "Company Manager"
       }
     }
   }

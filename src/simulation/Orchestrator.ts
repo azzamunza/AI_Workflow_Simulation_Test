@@ -22,10 +22,14 @@ export class ProjectManager {
     // 1. Initialize Agents from Excel positions
     agents.forEach((a: any) => {
       const agentMeta = (metadata.agents as any)[a.id];
+      let role: any = 'Sub-Agent';
+      if (agentMeta?.role?.includes('Company Manager')) role = 'Agent';
+      else if (agentMeta?.role?.includes('Department Manager')) role = 'Manager';
+
       store.updateAgent(a.id, {
         id: a.id,
         name: agentMeta?.role || a.id,
-        role: (agentMeta?.role?.includes('Manager') ? 'Manager' : 'Sub-Agent') as any,
+        role: role,
         status: 'Idle',
         location: { x: a.x * 32 + 16, y: a.y * 32 + 16 },
         isThinking: false
@@ -218,7 +222,8 @@ export class ProjectManager {
         "Multimodal Interaction & Human Interface": "H",
         "Research & Intelligence": "I",
         "3D Visualisation & Simulation": "J",
-        "Memory, Knowledge & Training": "K"
+        "Memory, Knowledge & Training": "K",
+        "Company Management": "L"
      };
      const prefix = prefixMap[dept];
      const manager = INITIAL_DATA.agents.find((a: any) => a.id === `${prefix}1`);

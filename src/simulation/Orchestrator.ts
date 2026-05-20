@@ -26,23 +26,19 @@ export class ProjectManager {
       if (agentMeta?.role?.includes('Company Manager')) role = 'Agent';
       else if (agentMeta?.role?.includes('Department Manager')) role = 'Manager';
 
-      const spawnX = a.x * 32 + 16;
-      const spawnY = a.y * 32 + 16;
+      // Spawn at entrance for "Entering" effect, or just teleport to desk?
+      // Aaron asked why they are not moving to desks. Let's spawn them at center corridor (26, 1)?
+      // For now, let's spawn them at a common entry point so they walk TO their desks.
+      const entrySpawn = { x: 26 * 32 + 16, y: 1 * 32 + 16 };
 
       store.updateAgent(a.id, {
         id: a.id,
         name: agentMeta?.role || a.id,
         role: role,
         status: 'Idle',
-        location: { x: spawnX, y: spawnY },
+        location: entrySpawn,
         isThinking: false
       });
-
-      // Special case: Receptionist
-      if (a.id === 'E1') { // Example: If E1 is the receptionist
-         // Move to back of desk? Or just ensure they are at their desk location.
-         // Actually, if we want them to move TO desks, we should spawn them at entrance.
-      }
     });
 
     // 2. Client (starts outside)
@@ -57,6 +53,15 @@ export class ProjectManager {
       isThinking: false,
       targetLocation: { x: receptionPos.x - 32, y: receptionPos.y }, // Stand in FRONT of desk
       carryingTaskId: 'initial-client-box'
+    });
+
+    // Ensure all agents move to their desks if they have one
+    agents.forEach((a: any) => {
+       const deskPos = { x: a.x * 32 + 16, y: a.y * 32 + 16 };
+       store.updateAgent(a.id, { 
+          targetLocation: deskPos,
+          status: 'Moving to Desk'
+       });
     });
 
     // Initial Task

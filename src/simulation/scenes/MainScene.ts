@@ -231,16 +231,19 @@ export class MainScene extends Phaser.Scene {
     
     projects.forEach((project: Project) => {
       project.tasks.forEach((task: Task) => {
+        // 1. Boxes held by agents
         const carrier = Object.values(storeAgents).find(a => a.carryingTaskId === task.id);
         if (carrier) {
           const agentObj = this.agents.get(carrier.id);
           if (agentObj) {
             this.taskGraphics.fillStyle(0xffffff, 1);
             this.taskGraphics.fillRect(agentObj.sprite.x - 10, agentObj.sprite.y - 10, 20, 20);
-            return;
+            this.taskGraphics.lineStyle(1, 0x000000, 1);
+            this.taskGraphics.strokeRect(agentObj.sprite.x - 10, agentObj.sprite.y - 10, 20, 20);
           }
         }
 
+        // 2. Blades held by agents
         if (task.blades) {
           task.blades.forEach((blade: Blade) => {
             const bladeCarrier = Object.values(storeAgents).find(a => a.carryingBladeId === blade.id);
@@ -249,7 +252,8 @@ export class MainScene extends Phaser.Scene {
                 if (agentObj) {
                   this.taskGraphics.fillStyle(0x00ccff, 1);
                   this.taskGraphics.fillRect(agentObj.sprite.x - 10, agentObj.sprite.y - 5, 20, 5);
-                  return;
+                  this.taskGraphics.lineStyle(1, 0x000000, 1);
+                  this.taskGraphics.strokeRect(agentObj.sprite.x - 10, agentObj.sprite.y - 5, 20, 5);
                 }
             }
             

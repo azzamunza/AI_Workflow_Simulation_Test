@@ -1,18 +1,5 @@
 import { create } from 'zustand';
 
-interface AgentState {
-  id: string;
-  name: string;
-  role: 'Receptionist' | 'Manager' | 'Sub-Agent' | 'Client' | 'Courier';
-  dept?: string;
-  status: string;
-  location: { x: number, y: number };
-  isThinking: boolean;
-  carryingTaskId?: string; 
-  carryingBladeId?: string; // New: Piece of a task
-  targetLocation?: { x: number, y: number }; 
-}
-
 export interface Blade {
   id: string;
   taskId: string;
@@ -33,6 +20,19 @@ export interface Project {
   name: string;
   status: 'Planning' | 'Active' | 'Complete';
   tasks: Task[];
+}
+
+interface AgentState {
+  id: string;
+  name: string;
+  role: 'Receptionist' | 'Manager' | 'Sub-Agent' | 'Client' | 'Courier';
+  dept?: string;
+  status: string;
+  location: { x: number, y: number };
+  isThinking: boolean;
+  carryingTaskId?: string; 
+  carryingBladeId?: string; // New: Piece of a task
+  targetLocation?: { x: number, y: number }; 
 }
 
 export interface SimulationState {
@@ -56,26 +56,26 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   simulationTime: 0,
   completedTasks: 0,
   bottlenecks: [],
-  updateAgent: (id, data) => set((state) => ({
+  updateAgent: (id: string, data: Partial<AgentState>) => set((state: SimulationState) => ({
     agents: {
       ...state.agents,
       [id]: { ...state.agents[id], ...data }
     }
   })),
-  addProject: (project) => set((state) => ({
+  addProject: (project: Project) => set((state: SimulationState) => ({
     projects: [...state.projects, project]
   })),
-  updateProject: (project) => set((state) => ({
+  updateProject: (project: Project) => set((state: SimulationState) => ({
     projects: state.projects.map(p => p.id === project.id ? project : p)
   })),
-  updateTask: (projectId, taskId, status) => set((state) => ({
+  updateTask: (projectId: string, taskId: string, status: Task['status']) => set((state: SimulationState) => ({
     projects: state.projects.map(p => 
       p.id === projectId 
         ? { ...p, tasks: p.tasks.map((t: Task) => t.id === taskId ? { ...t, status } : t) }
         : p
     )
   })),
-  setSimulationTime: (time) => set({ simulationTime: time }),
-  recordCompletion: () => set((state) => ({ completedTasks: state.completedTasks + 1 })),
-  setBottlenecks: (depts) => set({ bottlenecks: depts }),
+  setSimulationTime: (time: number) => set({ simulationTime: time }),
+  recordCompletion: () => set((state: SimulationState) => ({ completedTasks: state.completedTasks + 1 })),
+  setBottlenecks: (depts: string[]) => set({ bottlenecks: depts }),
 }));

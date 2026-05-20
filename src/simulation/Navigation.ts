@@ -13,7 +13,7 @@ export class NavigationManager {
   }
 
   private bakeGraph(tileData: number[], width: number, height: number, furnitureData: number[]) {
-    const walkableGids = [1, 2, 3, 4, 5, 6, 7, 8];
+    const walkableGids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {

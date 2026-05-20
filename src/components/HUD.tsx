@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSimulationStore } from '../store';
-import type { Task } from '../store';
+import { type Task, type Project } from '../store';
 
 export const HUD: React.FC = () => {
   const agents = useSimulationStore((state) => state.agents);
@@ -67,7 +67,7 @@ export const HUD: React.FC = () => {
         <h2 id="project-title" style={{ margin: 0, color: '#ffcc00' }}>Active Projects</h2>
         <div id="hud-project-list" style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
           {projects.length === 0 && <div style={{ opacity: 0.5 }}>Waiting for AI Planning...</div>}
-          {projects.map((project) => (
+          {projects.map((project: Project) => (
             <div key={project.id} style={{ backgroundColor: 'rgba(255,255,255,0.1)', padding: '10px', borderRadius: '5px' }}>
               <strong>📁 {project.name}</strong>
               <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
@@ -75,7 +75,7 @@ export const HUD: React.FC = () => {
                   <div key={task.id} style={{ 
                     fontSize: '12px',
                     opacity: task.status === 'Complete' ? 0.3 : 1.0,
-                    color: task.status === 'Stubbed' ? '#ffff00' : 'white',
+                    color: (task.status as string) === 'Stubbed' ? '#ffff00' : 'white',
                     textDecoration: task.status === 'Complete' ? 'line-through' : 'none',
                     padding: '5px',
                     border: '1px solid rgba(255,255,255,0.2)',

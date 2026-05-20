@@ -5,8 +5,8 @@ export const initGame = (containerId: string) => {
   const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     parent: containerId,
-    width: 2560,
-    height: 1600,
+    width: 2016,
+    height: 1376,
     physics: {
       default: 'arcade',
       arcade: {

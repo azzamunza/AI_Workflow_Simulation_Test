@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { useSimulationStore } from '../../store';
-import type { Task, Project, Blade } from '../../store';
+import { type Task, type Project, type Blade } from '../../store';
 import { NavigationManager } from '../Navigation';
 import { ProjectManager } from '../Orchestrator';
 
@@ -13,15 +13,16 @@ export class MainScene extends Phaser.Scene {
   protected debugGraphics!: Phaser.GameObjects.Graphics;
 
   private departmentCentroids: Record<string, { x: number, y: number }> = {
-    "Research": { x: 5 * 32, y: 5 * 32 },
-    "PM": { x: 55 * 32, y: 5 * 32 },
-    "Art": { x: 5 * 32, y: 35 * 32 },
-    "Programming": { x: 55 * 32, y: 35 * 32 },
-    "AI Ops": { x: 25 * 32, y: 5 * 32 },
-    "QA": { x: 25 * 32, y: 35 * 32 },
-    "Planning": { x: 45 * 32, y: 35 * 32 },
-    "Reception": { x: 6 * 32, y: 23 * 32 },
-    "Meeting": { x: 40 * 32, y: 15 * 32 }
+    "Research & Intelligence": { x: 57.3 * 32, y: 20.1 * 32 },
+    "Software & Systems Development": { x: 34.5 * 32, y: 18.9 * 32 },
+    "Executive Management": { x: 21.0 * 32, y: 18.9 * 32 },
+    "Data Analysis & Decision Systems": { x: 32.7 * 32, y: 4.6 * 32 },
+    "Security, Compliance & Risk": { x: 38.8 * 32, y: 4.6 * 32 },
+    "Automation & Tool Operations": { x: 57.3 * 32, y: 3.3 * 32 },
+    "3D Visualisation & Simulation": { x: 11.5 * 32, y: 4.6 * 32 },
+    "Memory, Knowledge & Training": { x: 20.5 * 32, y: 4.6 * 32 },
+    "Reception": { x: 3.5 * 32, y: 11.5 * 32 },
+    "Meeting": { x: 12.0 * 32, y: 17.5 * 32 }
   };
 
   private agentPaths: Map<string, { path: { x: number, y: number }[], index: number }> = new Map();
@@ -245,11 +246,11 @@ export class MainScene extends Phaser.Scene {
            }
            if (task.status === 'Reception') {
               this.taskGraphics.fillStyle(0xffffff, 1);
-              this.taskGraphics.fillRect(8 * 32 + 16 - 10, 23 * 32 + 16 - 10, 20, 20);
+              this.taskGraphics.fillRect(3.5 * 32 + 16 - 10, 11.5 * 32 + 16 - 10, 20, 20);
            }
            if (task.status === 'Meeting') {
               this.taskGraphics.fillStyle(0xffffff, 1);
-              this.taskGraphics.fillRect(40 * 32 + 16 - 10, 15 * 32 + 16 - 10, 20, 20);
+              this.taskGraphics.fillRect(12.0 * 32 + 16 - 10, 17.5 * 32 + 16 - 10, 20, 20);
            }
         }
       });
